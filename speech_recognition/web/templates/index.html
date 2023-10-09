@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音声入力とリアルタイム表示</title>
+</head>
+<body>
+
+<h1>音声入力</h1>
+<button onclick="startListening()">音声入力を開始</button>
+<p id="output"></p>
+
+<script>
+    const output = document.getElementById('output');
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition || window.mozSpeechRecognition || window.msSpeechRecognition)();
+    recognition.lang = 'ja-JP';
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = function(event) {
+        const speechToText = event.results[event.results.length - 1][0].transcript;
+        output.textContent = speechToText;
+    }
+
+    function startListening() {
+        recognition.start();
+    }
+</script>
+
+</body>
+</html>
