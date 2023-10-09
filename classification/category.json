@@ -1,0 +1,494 @@
+[
+    {
+        "category_number": "00",
+        "category_name": "総記"
+    },
+    {
+        "category_number": "01",
+        "category_name": "図書館．図書館情報学"
+    },
+    {
+        "category_number": "02",
+        "category_name": "図書．書誌学"
+    },
+    {
+        "category_number": "03",
+        "category_name": "百科事典．用語索引"
+    },
+    {
+        "category_number": "04",
+        "category_name": "一般論文・講演集"
+    },
+    {
+        "category_number": "05",
+        "category_name": "逐次刊行物．年鑑"
+    },
+    {
+        "category_number": "06",
+        "category_name": "団体"
+    },
+    {
+        "category_number": "07",
+        "category_name": "ジャーナリズム．新聞"
+    },
+    {
+        "category_number": "08",
+        "category_name": "叢書．全集．選集"
+    },
+    {
+        "category_number": "09",
+        "category_name": "郷土資料"
+    },
+    {
+        "category_number": "10",
+        "category_name": "哲学"
+    },
+    {
+        "category_number": "11",
+        "category_name": "哲学各論"
+    },
+    {
+        "category_number": "12",
+        "category_name": "東洋思想"
+    },
+    {
+        "category_number": "13",
+        "category_name": "西洋哲学"
+    },
+    {
+        "category_number": "14",
+        "category_name": "心理学"
+    },
+    {
+        "category_number": "15",
+        "category_name": "倫理学．道徳"
+    },
+    {
+        "category_number": "16",
+        "category_name": "宗教全般"
+    },
+    {
+        "category_number": "17",
+        "category_name": "神道"
+    },
+    {
+        "category_number": "18",
+        "category_name": "仏教"
+    },
+    {
+        "category_number": "19",
+        "category_name": "キリスト教．ユダヤ教"
+    },
+    {
+        "category_number": "20",
+        "category_name": "歴史．世界史．文化史"
+    },
+    {
+        "category_number": "22",
+        "category_name": "アジア史．東洋史"
+    },
+    {
+        "category_number": "23",
+        "category_name": "ヨーロッパ史．西洋史"
+    },
+    {
+        "category_number": "24",
+        "category_name": "アフリカ史"
+    },
+    {
+        "category_number": "25",
+        "category_name": "北アメリカ史"
+    },
+    {
+        "category_number": "26",
+        "category_name": "南アメリカ史"
+    },
+    {
+        "category_number": "27",
+        "category_name": "オセアニア史．両極地方史"
+    },
+    {
+        "category_number": "28",
+        "category_name": "人物伝"
+    },
+    {
+        "category_number": "29",
+        "category_name": "地理．地誌．紀行"
+    },
+    {
+        "category_number": "30",
+        "category_name": "社会科学"
+    },
+    {
+        "category_number": "31",
+        "category_name": "政治"
+    },
+    {
+        "category_number": "32",
+        "category_name": "法律"
+    },
+    {
+        "category_number": "33",
+        "category_name": "経済"
+    },
+    {
+        "category_number": "34",
+        "category_name": "財政"
+    },
+    {
+        "category_number": "35",
+        "category_name": "統計"
+    },
+    {
+        "category_number": "36",
+        "category_name": "社会"
+    },
+    {
+        "category_number": "37",
+        "category_name": "教育"
+    },
+    {
+        "category_number": "38",
+        "category_name": "風俗習慣．民俗学．民族学"
+    },
+    {
+        "category_number": "39",
+        "category_name": "国防．軍事"
+    },
+    {
+        "category_number": "40",
+        "category_name": "自然科学"
+    },
+    {
+        "category_number": "41",
+        "category_name": "数学"
+    },
+    {
+        "category_number": "42",
+        "category_name": "物理学"
+    },
+    {
+        "category_number": "43",
+        "category_name": "化学"
+    },
+    {
+        "category_number": "44",
+        "category_name": "天文学．宇宙科学"
+    },
+    {
+        "category_number": "45",
+        "category_name": "地球科学．地学．"
+    },
+    {
+        "category_number": "46",
+        "category_name": "生物科学．一般生物学"
+    },
+    {
+        "category_number": "47",
+        "category_name": "植物"
+    },
+    {
+        "category_number": "48",
+        "category_name": "動物"
+    },
+    {
+        "category_number": "49",
+        "category_name": "医学．薬学"
+    },
+    {
+        "category_number": "50",
+        "category_name": "技術．工学．"
+    },
+    {
+        "category_number": "51",
+        "category_name": "建設工学．土木工学"
+    },
+    {
+        "category_number": "52",
+        "category_name": "建築学"
+    },
+    {
+        "category_number": "53",
+        "category_name": "機械工学．原子力工学"
+    },
+    {
+        "category_number": "54",
+        "category_name": "電気工学．"
+    },
+    {
+        "category_number": "55",
+        "category_name": "海洋工学．船舶工学．兵器．軍事工学"
+    },
+    {
+        "category_number": "56",
+        "category_name": "金属工学．鉱山工学"
+    },
+    {
+        "category_number": "57",
+        "category_name": "化学工業"
+    },
+    {
+        "category_number": "58",
+        "category_name": "製造工業"
+    },
+    {
+        "category_number": "59",
+        "category_name": "家政学．生活科学"
+    },
+    {
+        "category_number": "60",
+        "category_name": "産業"
+    },
+    {
+        "category_number": "61",
+        "category_name": "農業"
+    },
+    {
+        "category_number": "62",
+        "category_name": "園芸．造園"
+    },
+    {
+        "category_number": "63",
+        "category_name": "蚕糸業"
+    },
+    {
+        "category_number": "64",
+        "category_name": "畜産業．獣医学"
+    },
+    {
+        "category_number": "65",
+        "category_name": "林業．狩猟"
+    },
+    {
+        "category_number": "66",
+        "category_name": "水産業"
+    },
+    {
+        "category_number": "67",
+        "category_name": "商業"
+    },
+    {
+        "category_number": "68",
+        "category_name": "運輸．交通．観光事業"
+    },
+    {
+        "category_number": "69",
+        "category_name": "通信事業"
+    },
+    {
+        "category_number": "70",
+        "category_name": "芸術．美術"
+    },
+    {
+        "category_number": "71",
+        "category_name": "彫刻．オブジェ"
+    },
+    {
+        "category_number": "73",
+        "category_name": "版画．印章．篆刻．印譜"
+    },
+    {
+        "category_number": "74",
+        "category_name": "写真．印刷"
+    },
+    {
+        "category_number": "76",
+        "category_name": "音楽．舞踏．バレエ"
+    },
+    {
+        "category_number": "77",
+        "category_name": "演劇．映画．大衆芸術"
+    },
+    {
+        "category_number": "78",
+        "category_name": "スポーツ．体育"
+    },
+    {
+        "category_number": "79",
+        "category_name": "諸芸．娯楽"
+    },
+    {
+        "category_number": "80",
+        "category_name": "言語"
+    },
+    {
+        "category_number": "81",
+        "category_name": "日本語"
+    },
+    {
+        "category_number": "82",
+        "category_name": "中国語．その他の東洋の諸言語"
+    },
+    {
+        "category_number": "83",
+        "category_name": "英語"
+    },
+    {
+        "category_number": "84",
+        "category_name": "ドイツ語．その他のゲルマン諸語"
+    },
+    {
+        "category_number": "85",
+        "category_name": "フランス語．プロバンス語"
+    },
+    {
+        "category_number": "86",
+        "category_name": "スペイン語．ポルトガル語"
+    },
+    {
+        "category_number": "87",
+        "category_name": "イタリア語．その他のロマンス諸語"
+    },
+    {
+        "category_number": "88",
+        "category_name": "ロシア語．その他のスラブ諸国"
+    },
+    {
+        "category_number": "89",
+        "category_name": "その他の諸言語"
+    },
+    {
+        "category_number": "90",
+        "category_name": "文学"
+    },
+    {
+        "category_number": "91",
+        "category_name": "日本文学"
+    },
+    {
+        "category_number": "92",
+        "category_name": "中国文学．その他の東洋文学"
+    },
+    {
+        "category_number": "93",
+        "category_name": "英米文学"
+    },
+    {
+        "category_number": "94",
+        "category_name": "ドイツ文学．その他のゲルマン文学"
+    },
+    {
+        "category_number": "95",
+        "category_name": "フランス文学．プロバンス文学"
+    },
+    {
+        "category_number": "96",
+        "category_name": "スペイン文学．ポルトガル文学"
+    },
+    {
+        "category_number": "97",
+        "category_name": "イタリア文学．その他のロマンス文学"
+    },
+    {
+        "category_number": "98",
+        "category_name": "ロシア・ソビエト文学．その他のスラブ文学"
+    },
+    {
+        "category_number": "99",
+        "category_name": "その他の諸言語文学"
+    },
+    {
+        "category_number": "210",
+        "category_name": "日本史全般"
+    },
+    {
+        "category_number": "211",
+        "category_name": "日本史:原始時代(旧石器時代、縄文時代、弥生時代)"
+    },
+    {
+        "category_number": "212",
+        "category_name": "日本史:古代(時代、飛鳥時代、奈良時代、平安時代)"
+    },
+    {
+        "category_number": "213",
+        "category_name": "日本史:中世(鎌倉時代、南北朝時代、室町時代、戦国時代、安土桃山時代)"
+    },
+    {
+        "category_number": "214",
+        "category_name": "日本史:近世(江戸時代)"
+    },
+    {
+        "category_number": "215",
+        "category_name": "日本史:近代(明治時代、大正時代)"
+    },
+    {
+        "category_number": "216",
+        "category_name": "日本史:現代(昭和時代以降)"
+    },
+    {
+        "category_number": "720",
+        "category_name": "絵画全般"
+    },
+    {
+        "category_number": "721",
+        "category_name": "日本画"
+    },
+    {
+        "category_number": "722",
+        "category_name": "東洋画"
+    },
+    {
+        "category_number": "723",
+        "category_name": "洋画"
+    },
+    {
+        "category_number": "724",
+        "category_name": "絵画材料・技法"
+    },
+    {
+        "category_number": "725",
+        "category_name": "素描. 描画"
+    },
+    {
+        "category_number": "726",
+        "category_name": "漫画. 挿絵. 童画"
+    },
+    {
+        "category_number": "727",
+        "category_name": "デザイン. 図案(2D)"
+    },
+    {
+        "category_number": "728",
+        "category_name": "書. 書道"
+    },
+    {
+        "category_number": "750",
+        "category_name": "工芸全般"
+    },
+    {
+        "category_number": "751",
+        "category_name": "陶磁工芸"
+    },
+    {
+        "category_number": "752",
+        "category_name": "漆工芸"
+    },
+    {
+        "category_number": "753",
+        "category_name": "染織工芸"
+    },
+    {
+        "category_number": "754",
+        "category_name": "木竹工芸"
+    },
+    {
+        "category_number": "755",
+        "category_name": "宝石・牙角・皮革工芸"
+    },
+    {
+        "category_number": "756",
+        "category_name": "金工芸"
+    },
+    {
+        "category_number": "757",
+        "category_name": "デザイン. 装飾美術(3D)"
+    },
+    {
+        "category_number": "758",
+        "category_name": "美術家具"
+    },
+    {
+        "category_number": "759",
+        "category_name": "人形. 玩具"
+    }
+]
