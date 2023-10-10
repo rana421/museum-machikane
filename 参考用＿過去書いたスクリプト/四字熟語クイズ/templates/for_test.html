@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <style>
+            .containers{
+                position:fixed;
+                transform:scale(0.8);
+                z-index:999;
+                
+
+            }
+            .player_container{
+                
+                
+                background-color:rgb(255, 55, 41) ;
+                /*-webkit-text-stroke:1px rgb(255, 255, 255);*/
+                border-radius:30px;
+                width:200px;
+                height:200px;
+                justify-content: center;
+                padding: 1px;
+                transform: scale(1);
+                margin:10px 0px 10px 0px;
+                transition: all 1s ease;
+
+            }
+            .player_container:hover{
+                transform: translateY(400%);
+                
+            }
+            .name{
+                background-color: white;
+                width: 150px;
+                height: 50px;
+                border-radius: 10px;
+                margin-left: auto;
+                margin-right: auto;
+                margin-top: 15px;
+                text-align: center;
+                font-size: 30px;
+                
+
+            }
+            .point{
+                background-color: rgb(240, 255, 158);
+                width: 150px;
+                height: 100px;
+                border-radius: 10px;
+                margin-left: auto;
+                margin-right: auto;
+                margin-top: 10px;
+                text-align: center;
+                line-height: 100px;
+                font-size: 30px;
+                border: solid 5px rgb(133, 255, 154) ;
+
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="containers">
+
+            <div class="player_container">
+                <div class="name">谷口令</div>
+                <div class="point">100pt</div>
+            </div>
+
+            <div class="player_container">
+                <div class="name">まりお</div>
+                <div class="point">100pt</div>
+            </div>
+
+            <div class="player_container">
+                <div class="name">うんち</div>
+                <div class="point">100pt</div>
+            </div>
+
+            <div class="player_container">
+                <div class="name">正解の音</div>
+                <div class="point">100pt</div>
+            </div>
+        </div>
+
+        
+
+    </body>
+</html>

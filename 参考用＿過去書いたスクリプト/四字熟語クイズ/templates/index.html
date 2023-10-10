@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <style>
+            @charset "UTF-8";
+            body {background-color:whitesmoke;
+                z-index: 0;
+                
+            }
+            .next_button{
+                position: absolute;
+                margin-top: -300px;
+                background-color:cornsilk;
+                width: 10%;
+                padding: 20px;
+                font-size: 110%;
+            }
+            .quiz{
+                background: thistle;
+                /*background-position: center top;*/
+                margin-left: auto;
+                margin-right: auto;
+                margin-bottom: 5vh;
+                
+                height: 70vh;
+                width: 100vh;
+                z-index: 1;
+                /*transform :rotate(200deg);*/
+                
+                
+                
+                
+            }
+            .footer{
+                
+                text-align: center;
+                background-color: thistle;
+                margin-top: 30vh;
+                
+            }
+            body div.quiz{
+                text-align: center ;
+                font-size: 150%;
+            }
+            body div.buttons{
+                
+                display: flex;
+                justify-content:space-around;
+                
+            }
+            .button{
+                background-color:cornsilk;
+                width: 10%;
+                padding: 20px;
+                font-size: 110%;
+                border-radius: 10px;
+            }
+           
+        </style>
+
+
+    </head>
+
+    <body>
+        <div class="quiz" >
+            <h3 id="quiz_line" style="animation: typing 1.5s ;">ここに問題が表示されます</h3>
+            
+        </div>
+
+        
+        <input type="button" class="next_button" onclick =OnNextQuiz() value="次の問題へ">
+        <div class="buttons">
+            <input type="button" class="button" id="button1" value="1番" onclick=OnAnswer(this.id)>
+            <input type="button" class="button" id="button2" value="2番" onclick=OnAnswer(this.id)>
+            <input type="button" class="button" id="button3" value="3番" onclick=OnAnswer(this.id)>
+            <input type="button" class="button" id="button4" value="4番" onclick=OnAnswer(this.id)>
+        </div>
+        <div style=" 
+        font-size: 500px;
+        color: red;
+        margin-top: -175vh;
+        margin-left: 30vw;
+        z-index: 2;
+        opacity: 0.7;
+        " class ='answer'>
+        <p id ='answer' ></p>
+        </div>
+
+        <div style=" 
+        font-size: 100px;
+        color:rgb(255, 0, 0);
+        text-align: center;
+        margin-top: -140vh;
+        z-index: 100;
+        opacity: 1;
+        -webkit-text-stroke:1px white;
+        
+       
+        " >
+        <p id='answer_desc_yomi' style="font-size: 40px;"></p>
+        <p id='answer_desc_kanji' style='margin-top: -40px;'></p>
+        </div>
+        
+
+        
+        <!-- 
+        <footer class="footer">
+          
+            <p>&copy;2021 Raybow</p>
+        </footer>
+        -->
+
+        <script>
+            var answer_num = '';
+            var json_load;
+            var word;
+            function OnNextQuiz(){
+                document.getElementById('answer').textContent=''
+                document.getElementById('answer_desc_yomi').textContent = ''
+                document.getElementById('answer_desc_kanji').textContent = ''
+                    
+                var url = "/test"
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url);
+            xhr.send();
+            xhr.onreadystatechange = function() {
+            if(xhr.readyState === 4 && xhr.status === 200) {
+                json_load = JSON.parse(xhr.responseText)
+                word = JSON.parse(xhr.responseText)['desc'];
+                if('speechSynthesis' in window){
+                    console.log('あるよ')
+                    const uttr = new SpeechSynthesisUtterance();
+                    uttr.text =word
+                uttr.lang = "ja-JP";
+                uttr.onboundary = function(event) {
+                    console.log(event.charIndex +':'+ event.charLength);
+                    document.getElementById('quiz_line').textContent = word.slice(0,event.charIndex + event.charLength +1);
+  }
+                console.log(uttr.onboundary)
+                window.speechSynthesis.speak(uttr);
+
+                }
+                
+                
+                document.getElementById('button1').value= json_load['choice1'];
+                document.getElementById('button2').value= json_load['choice2'];
+                document.getElementById('button3').value= json_load['choice3'];
+                document.getElementById('button4').value= json_load['choice4'];
+                answer_num = json_load['answer_number'];
+
+                
+            }
+}
+
+            }
+
+            function OnAnswer(id){
+                if(id == 'button' +answer_num){
+                    speechSynthesis.cancel()
+                    console.log('正解')
+                    document.getElementById('quiz_line').textContent = word;
+                    document.getElementById('answer').textContent='○'
+                    document.getElementById('answer').style.color ='red'
+                    document.getElementById('answer_desc_yomi').textContent = json_load['yomi']
+                    document.getElementById('answer_desc_kanji').textContent = json_load['kanji']
+                    
+                }else{
+                    speechSynthesis.cancel()
+                    console.log('ハズレ')
+                    document.getElementById('quiz_line').textContent = word;
+                    document.getElementById('answer').textContent='✕'
+                    document.getElementById('answer').style.color ='black'
+                    document.getElementById('answer_desc_yomi').textContent = json_load['yomi']
+                    document.getElementById('answer_desc_kanji').textContent = json_load['kanji']
+                    
+                }
+
+            }            
+
+
+        </script>
+
+        <script>
+             var connection = new WebSocket("ws://localhost:9999/ws/");
+                    //接続通知
+            connection.onopen = function(event) {
+                //document.getElementById( "eventType" ).value = "通信接続イベント受信";
+                console.log(event.data);
+                console.log('つながったよ');
+                
+            };
+
+            //エラー発生
+            connection.onerror = function(error) {
+                //document.getElementById( "eventType" ).value = "エラー発生イベント受信";
+                console.log(event.data);
+            };
+
+            //メッセージ受信
+            connection.onmessage = function(event) {
+                //document.getElementById( "eventType" ).value = "メッセージ受信";
+                console.log(event.data);
+            };
+
+            //切断
+            connection.onclose = function() {
+                //document.getElementById( "eventType" ).value = "通信切断イベント受信";
+                console.log(event.data);
+            };
+
+        </script>
+        
+
+    </body>
+
+</html>
