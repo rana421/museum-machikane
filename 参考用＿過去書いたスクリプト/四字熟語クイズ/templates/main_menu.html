@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="utf-8">
+        <title>辞書クイズ</title>
+        <meta name="description" content="辞書クイズ！">
+        <!--<link rel="stylesheet" href="{{ url_for('static', filename='/css.css') }}">-->
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <style>
+            .nav{
+    display: flex;
+    list-style: none;
+    gap:100px;
+    font-size: 150%;
+   
+}
+
+a{
+    text-decoration: none; /*リンクの傍線を消す*/
+    color:red;
+}
+.header{
+    display: flex;
+    position: relative; /*z-indexはpositionをstatic以外にしないと適応されない*/
+    z-index: 999;
+    justify-content: space-between;
+    margin: 0 auto;
+    padding : 0 auto;
+    
+}
+.main{
+    text-align: center;
+    font-size: 200%;
+    
+}
+.button{
+    border-radius: 50px;
+    font-size: 20px;
+    color: white;
+    border-color: rgb(42, 57, 85,0); /*この色は表示されない*/
+    background-color: rgb(60, 200, 255);
+    padding: 20px 20px;
+    margin-left: 50px;
+    margin-right: 50px;
+    
+}
+.button:hover{
+    background-color: rgb(131, 223, 26);
+}
+
+body{
+    background-image: url("{{ url_for('static', filename='/images/22357898_l.jpg') }}");
+    background-size: cover;
+}
+footer{
+   font-size: 20px;
+   position: absolute;
+   bottom: 0;   
+   left: 45%;
+}
+.footer_word{
+    text-align: center;
+}
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+}
+.modal-window_create {
+    display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  height: 500px;
+  background-color: #dfdddd;
+  border-radius: 5px;
+  z-index: 11;
+  padding: 2rem;
+  text-align: center;
+}
+.modal-window_find {
+    display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px;
+  height: 500px;
+  background-color: #dfdddd;
+  border-radius: 5px;
+  z-index: 11;
+  padding: 2rem;
+  text-align: center;
+}
+.game_main{
+    z-index: 13;
+    position: relative;
+
+  
+}
+.game_overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background-color: rgb(249, 250, 175);
+  width: 100%;
+  height: 100%;
+  z-index: 12;
+}
+
+        </style>
+    </head>
+    <body>
+        
+        <header class="header">
+            <h1><a href ='/'>辞書クイズ!</a></h1>
+            <nav>
+                <ul class="nav">
+                    <li><a href="/about">このサイトって？</a></li>
+                    <li><a href="/rule">利用規約</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <div id="overlay" class="overlay"></div>
+        <div id="game_overlay" class="game_overlay"></div>
+        <div class="game_main"></div>
+        
+
+        <div class="modal-window_create">
+            <h3>新しいルームの名前とパスワードを入力してください
+                <p>ルーム名</p>
+            <input type="text" id="name_c">
+            <p>パスワード</p>
+            <input type="text" id="password_c">
+            <p>自分のID</p>
+            <input type="text" id="id_c">
+            <p><button id="Create_room" class="button" onclick=OnAjax()>OK</button></p>
+            <div class="result_c"></div>
+        </h3>
+          </div>
+
+          
+
+          <div class="modal-window_find">
+            <h3>入りたいルームの名前とパスワードを入力してください
+                <p>ルーム名</p>
+            <input type="text" id="name_f">
+            <p>パスワード</p>
+            <input type="text" id="password_f">
+            <p>自分のID</p>
+            <input type="text" id="id_f">
+            <p><button id="Create_room" class="button" onclick=find_room()>OK</button></p>
+            <div class="result_f"></div>
+        </h3>
+          </div>
+
+
+
+        <div class="main">
+            <h1><p>「辞書」</p>それは人類の英知</h1>
+
+            <div class="menu">
+                <input type="button" class="button" value="ルームを作る" onclick=Opne_Create()>
+                <input type="button" class="button" value="ルームに入る" onclick=Opne_Find()>
+            
+            <footer > <p class="footer_word"><small>©</small> 2021 raybow</p></footer>
+        </div>
+        
+
+        <script>
+
+
+            function Opne_Create(){
+                $('#overlay ,.modal-window_create').fadeIn();
+            
+        }
+        function Opne_Find(){
+                $('#overlay ,.modal-window_find').fadeIn();
+            
+        }
+        $('#overlay').click(function () {
+    $('#overlay, .modal-window_find,.modal-window_create ').fadeOut();
+  });
+
+  var room_name="";
+  var password="";
+  var my_id ="";
+
+
+  function OnAjax(){
+      room_name = document.getElementById("name_c").value;
+      password = document.getElementById("password_c").value;
+      my_id = document.getElementById("id_c").value;
+      if(room_name ==""|| password=="" || my_id==""){
+        $('.result_c').html("各項少なくとも１文字は<p>入力してください！</p>");
+        return 0; 
+      }
+    $.ajax({
+            url: '/create_room',
+            type: 'GET',
+            dataType: 'html',
+            data: { "room_name" : room_name,"password": password ,"ID" :my_id}
+        }).done(function(data){
+            /* 通信成功時 */
+            if (data.indexOf('ルーム') !== -1){
+                $('.result_c').html(data); //取得したHTMLを.resultに反映
+            }else{
+
+                $('.game_overlay').fadeIn();
+                $('.game_main').html(data); //取得したHTMLを.resultに反映
+               
+
+            }
+            
+        }).fail(function(data){
+            /* 通信失敗時 */
+            alert('通信に失敗しました。お手数ですが接続し直してください。');
+                    
+        });
+      
+  }
+
+  function find_room(){
+    room_name = document.getElementById("name_f").value;
+    password = document.getElementById("password_f").value;
+    my_id = document.getElementById("id_f").value;
+    $.ajax({
+            url: '/find_room',
+            type: 'GET',
+            dataType: 'html',
+            data: { "room_name" : room_name,"password": password ,"ID" :my_id}
+        }).done(function(data){
+            /* 通信成功時 */
+            if (data.indexOf('ルーム') !== -1){
+                $('.result_f').html(data); //取得したHTMLを.resultに反映
+            }else{
+
+                $('.game_overlay').fadeIn();
+                $('.game_main').html(data); //取得したHTMLを.resultに反映
+               
+
+            }
+            
+        }).fail(function(data){
+            /* 通信失敗時 */
+            alert('通信に失敗しました。お手数ですが接続し直してください。');
+                    
+        });
+
+  }
+        </script>
+
+        
+    </body>
+</html>
