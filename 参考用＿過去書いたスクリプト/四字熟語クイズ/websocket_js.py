@@ -78,7 +78,7 @@ async def accept(websocket, path):
   change_flags[my_number] = "0"
   i +=1
   loop = asyncio.get_event_loop()
-  gather = asyncio.gather(recv(websocket,my_number),send(websocket,my_number))
+  gather = asyncio.gather(recv(websock    et,my_number),send(websocket,my_number))
   loop.run_until_complete(gather)
 
 
