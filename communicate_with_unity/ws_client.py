@@ -13,7 +13,7 @@ websocket = loop.run_until_complete(websockets.connect(uri))
 user_input =  '浮世絵に興味があります！'
 
 
-dictionary = {'user_inpput':user_input}
+dictionary = {'user_input':user_input}
 packet = json.dumps(dictionary).encode()
 # loop.run_until_complete(websocket.send(packet))
 # # 受信
@@ -39,7 +39,7 @@ async def loop():
                 if dictionary["TYPE"] == "QUERY":
                     print(dictionary["QUERY"])
                 
-                elif dictionary["TYPE"] == "ANSER":
+                elif dictionary["TYPE"] == "ANSWER":
                     print("________________________________________________________")
                     print( "@"+ dictionary["prefecture"])
                     print("「"+dictionary["museum_name"] + "  "+dictionary["exhibition_name"] +"」")

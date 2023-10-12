@@ -14,21 +14,24 @@ async def server(websocket, path):
         # 受信
         received_packet = await websocket.recv()
         receive_msg = json.loads(received_packet.decode())
+
         print(f"came from :{path} , message: {receive_msg}")
         
         # 送信
-        user_input = receive_msg["user_inpput"]
+        user_input = receive_msg["user_input"]
         print(user_input)
         await asyncio.sleep(1)
         QUERY = SDB.make_QUERY(user_input=user_input)
         QUERY_DICT = {"TYPE": "QUERY" ,"QUERY":QUERY}
-        packet = json.dumps(QUERY_DICT).encode()
+        packet = json.dumps(QUERY_DICT, ensure_ascii=False).encode('utf-8')
+        #packet = json.dumps(QUERY_DICT)
         await websocket.send(packet)
 
         #await asyncio.sleep(1)
         index_num, prefecture, museum_name, exhibition_name, exhibition_reason = SDB.make_output()
-        ANS_DICT = {"TYPE" : "ANSER", "prefecture":prefecture,"museum_name": museum_name,"exhibition_name":exhibition_name,"exhibition_reason":exhibition_reason}
-        packet = json.dumps(ANS_DICT).encode()
+        ANS_DICT = {"TYPE" : "ANSWER", "prefecture":prefecture,"museum_name": museum_name,"exhibition_name":exhibition_name,"exhibition_reason":exhibition_reason}
+        packet = json.dumps(ANS_DICT, ensure_ascii=False).encode('utf-8')
+        #packet = json.dumps(ANS_DICT)
         await websocket.send(packet)
 
     except websockets.ConnectionClosedError:
