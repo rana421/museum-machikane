@@ -1,6 +1,6 @@
 #https://uepon.hatenadiary.com/entry/2018/12/28/203627
 #ws_severのやつとは別に上記を参考にしました。
-
+#使用方法：ws_Server.pyを先に起動しておいてから、コマンドプロンプトかなんかでこのディレクトリ上で「python ws_client.py」を実行してください
 import asyncio
 import websockets
 import json
@@ -10,10 +10,12 @@ uri = "ws://localhost:8001"
 websocket = loop.run_until_complete(websockets.connect(uri))
 # 送信
 
-user_input =  '浮世絵に興味があります！'
+print("\n\n>>希望の展示についてお聞かせください！\n")
+user_input = input("Input: ") 
+#user_input =  '浮世絵に興味があります！'
 
 
-dictionary = {'user_input':user_input}
+dictionary = {"TYPE":"USER_INPUT",'user_input':user_input}
 packet = json.dumps(dictionary).encode()
 # loop.run_until_complete(websocket.send(packet))
 # # 受信
@@ -28,7 +30,8 @@ packet = json.dumps(dictionary).encode()
 async def loop():
     async with websockets.connect(uri) as websocket:
         await websocket.send(packet)
-        print(">> sent a packet")
+        print("\n\n>>検索ワードを作成中...")
+
         while True:
 
             try:
@@ -37,16 +40,21 @@ async def loop():
                 #print(f"{dictionary}")
 
                 if dictionary["TYPE"] == "QUERY":
+                    print("_____________________________________________________________________________________")
+                    print("\n>>提案された検索ワード：")
                     print(dictionary["QUERY"])
+                    print("_____________________________________________________________________________________")
+                    print("\n>>展示を検索中...")
                 
                 elif dictionary["TYPE"] == "ANSWER":
-                    print("________________________________________________________")
+                    print("\n_____________________________________________________________________________________")
+                    print("[検索結果]\n")
                     print( "@"+ dictionary["prefecture"])
                     print("「"+dictionary["museum_name"] + "  "+dictionary["exhibition_name"] +"」")
                     #print(dictionary["exhibition_name"])
-                    print("______AIからの一言______")
+                    print("\n______ミュージアム同好会botからの一言______")
                     print(dictionary["exhibition_reason"])
-                    print("________________________________________________________")
+                    print("_____________________________________________________________________________________")
             
             except websockets.exceptions.ConnectionClosedOK:
                 print("CLOSED")
