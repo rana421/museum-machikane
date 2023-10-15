@@ -30,7 +30,8 @@ packet = json.dumps(dictionary).encode()
 async def loop():
     async with websockets.connect(uri) as websocket:
         await websocket.send(packet)
-        print("\n\n>>検索ワードを作成中...")
+        #print("\n\n>>検索ワードを作成中...")
+        print("\n\n>>検索しています...")
 
         while True:
 
@@ -40,11 +41,12 @@ async def loop():
                 #print(f"{dictionary}")
 
                 if dictionary["TYPE"] == "QUERY":
-                    print("_____________________________________________________________________________________")
-                    print("\n>>提案された検索ワード：")
-                    print(dictionary["QUERY"])
-                    print("_____________________________________________________________________________________")
-                    print("\n>>展示を検索中...")
+                    continue
+                    # print("_____________________________________________________________________________________")
+                    # print("\n>>提案された検索ワード：")
+                    # print(dictionary["QUERY"])
+                    # print("_____________________________________________________________________________________")
+                    # print("\n>>展示を検索中...")
                 
                 elif dictionary["TYPE"] == "ANSWER":
                     print("\n_____________________________________________________________________________________")
@@ -52,7 +54,7 @@ async def loop():
                     print( "@"+ dictionary["prefecture"])
                     print("「"+dictionary["museum_name"] + "  "+dictionary["exhibition_name"] +"」")
                     #print(dictionary["exhibition_name"])
-                    print("\n______ミュージアム同好会botからの一言______")
+                    print("\n______同好会botからの一言______")
                     print(dictionary["exhibition_reason"])
                     print("_____________________________________________________________________________________")
             

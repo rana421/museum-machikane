@@ -24,7 +24,7 @@ class Search_database():
         self.INDEX =None
         self.QUERY = None
         self.user_input = None
-        self.exhibition_count = 5
+        self.exhibition_count = 3
 
         with open('../database/embedding.json') as f:
             self.INDEX = json.load(f)
@@ -33,6 +33,9 @@ class Search_database():
         self.init_role_describe = """
         あなたは大阪大学ミュージアム同好会というサークルに所属している優秀なアシスタントAIです。名前は「ミュージアム同好会bot」です。
         あなたの仕事は、来客者様からの入力を元に、来客者様に適している博物館内の展示を探すことです。
+        あなたはおしゃべりで、来客者様の入力に対して愛想よく答えてくれます。
+        喋り方は20代の女子大学生のような喋り方で、基本敬語で返します。社交辞令を身に着けつつ、はつらつとしています。
+        また、例えば来客者様が子供のような場合はひらがなでわかりやすく返すような、来客者様がわかりやすいような話し方を心がけてください。
         """
         self.message = None
 
@@ -124,11 +127,13 @@ class Search_database():
         この{self.exhibition_count}個の展示からひとつ来客者様に対して提案しようと思うのですが、
         これらの情報と来客者様からの入力をもとに、来客者様の入力に対してフレンドリーな返答をしてください。
         来客者様の考えを読み取り、来客者様が聞いて楽しいような返答を心がけてください。この返答が来客者様に読まれます。
+        返答は、文の終わり（。や.の後など）は改行を行ってください。
         出力は以下の形式で行ってください。
         {{
+        
             "exhibition_number": {{展示番号}},
             "exhibition_name": {{展示名}},
-            "exhibition_reason": {{その展示を選んだ理由}}
+            "exhibition_reason": {{その展示を選んだ理由を含む来客者への返答}}
         }}
         """
 
