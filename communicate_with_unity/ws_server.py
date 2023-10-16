@@ -27,8 +27,8 @@ async def server(websocket, path):
 
             # 送信
             user_input = receive_msg["user_input"]
-            user_input .replace('\u200b', '') #半角の文字コードを消している
-            user_input .replace('\u3000', '') #全角の文字コードを消している
+            user_input .replace('\u200b', ' ') #半角の文字コードを消している
+            user_input .replace('\u3000', ' ') #全角の文字コードを消している
             print(user_input)
             #await asyncio.sleep(1)
             QUERY = SDB.make_QUERY(user_input=user_input)
