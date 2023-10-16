@@ -1,64 +1,79 @@
-#https://uepon.hatenadiary.com/entry/2018/12/28/203627
-#ws_severのやつとは別に上記を参考にしました。
-#使用方法：ws_Server.pyを先に起動しておいてから、コマンドプロンプトかなんかでこのディレクトリ上で「python ws_client.py」を実行してください
+# https://uepon.hatenadiary.com/entry/2018/12/28/203627
+# ws_severのやつとは別に上記を参考にしました。
+# 使用方法：ws_Server.pyを先に起動しておいてから、コマンドプロンプトかなんかでこのディレクトリ上で「python ws_client.py」を実行してください
 import asyncio
 import websockets
 import json
-loop = asyncio.get_event_loop()
-# 接続
+from module import audio_input
+
 uri = "ws://localhost:8001"
-websocket = loop.run_until_complete(websockets.connect(uri))
-# 送信
+timeout = 60 * 5
 
-print("\n\n>>希望の展示についてお聞かせください！\n")
-user_input = input("Input: ") 
-#user_input =  '浮世絵に興味があります！'
+print(">> 同好会botにようこそ！\n")
+print(">> 同好会botは、あなたの希望に合った展示を提案します！\n")
+print(">> 希望の展示についてお聞かせください！\n")
 
+print(">> 音声入力の開始")
+# audio_file =  get_audio()
+audio_file = "./audio/test.wav"
 
-dictionary = {"TYPE":"USER_INPUT",'user_input':user_input}
-packet = json.dumps(dictionary).encode()
-# loop.run_until_complete(websocket.send(packet))
-# # 受信
-# received_packet = loop.run_until_complete(websocket.recv())
-# dictionary = json.loads(received_packet.decode())
-# print(dictionary)
-# # 終了
-# loop.run_until_complete(websocket.close())
-# loop.close()
-# print("Finish.")
+# user_input = audio_input.recognize_audio(audio_file)
+# user_input = input("Input: ")
+user_input = '浮世絵に興味があります！'
 
-async def loop():
-    async with websockets.connect(uri) as websocket:
+print(">> 音声入力の終了")
+print(">> 入力された内容：", user_input)
+
+async def amain():
+    async with websockets.connect(uri, close_timeout=timeout, ping_timeout=None) as websocket:
+        dictionary = {"TYPE": "USER_INPUT", "user_input": user_input}
+        packet = json.dumps(dictionary).encode()
         await websocket.send(packet)
-        #print("\n\n>>検索ワードを作成中...")
-        print("\n\n>>検索しています...")
+        print("\n\n>> 検索しています...")
 
         while True:
-
             try:
-                receiveData = await websocket.recv()
+                receiveData = await asyncio.wait_for(websocket.recv(), timeout=timeout)
                 dictionary = json.loads(receiveData.decode())
                 #print(f"{dictionary}")
 
                 if dictionary["TYPE"] == "QUERY":
-                    continue
-                    # print("_____________________________________________________________________________________")
-                    # print("\n>>提案された検索ワード：")
-                    # print(dictionary["QUERY"])
-                    # print("_____________________________________________________________________________________")
-                    # print("\n>>展示を検索中...")
-                
+                    print("\n>> 提案された検索ワード：")
+                    print(dictionary["QUERY"])
+                    print("\n>> 展示を検索中...")
+
                 elif dictionary["TYPE"] == "ANSWER":
-                    print("\n_____________________________________________________________________________________")
                     print("[検索結果]\n")
                     print( "@"+ dictionary["prefecture"])
                     print("「"+dictionary["museum_name"] + "  "+dictionary["exhibition_name"] +"」")
                     #print(dictionary["exhibition_name"])
-                    print("\n______同好会botからの一言______")
+                    print("\n--------同好会botからの一言--------")
                     print(dictionary["exhibition_reason"])
-                    print("_____________________________________________________________________________________")
-            
+
+                elif dictionary["TYPE"] == "PRINT":
+                    print(">> 結果をPDFで印刷しています")
+
+                elif dictionary["TYPE"] == "CLOSE":
+                    print(">> CLOSE")
+                    websocket.close()
+
+            # except asyncio.TimeoutError:
+            #     print(">> タイムアウトしました。")
+            #     break
+
             except websockets.exceptions.ConnectionClosedOK:
                 print("CLOSED")
                 break
-asyncio.get_event_loop().run_until_complete(loop())
+
+            # except Exception as e:
+            #     print(e)
+            #     break
+
+if __name__ == "__main__":
+    # loop = asyncio.new_event_loop()
+    # asyncio.set_event_loop(loop)
+    try:
+        asyncio.run(amain())
+        # loop.run_until_complete(amain())
+    except KeyboardInterrupt:
+        pass

@@ -45,8 +45,8 @@ class Search_database():
     def make_QUERY(self,user_input):
         self.user_input = user_input
 
-        print("User_Input :", user_input)
-        print(">> QUERYを作成中...")
+        print("User_Input :", user_input, end="\n\n")
+        print(">> QUERYを作成中...\n")
 
         self.message = f"""「{user_input}」
         という来客者様からの文章を元に展示を調べなくてはいけません。
@@ -73,7 +73,7 @@ class Search_database():
         QUERY  = response.choices[0]["message"]["content"].strip()
         self.QUERY = QUERY
         splited_query = QUERY.split(",")
-        print("Query :", splited_query)
+        print("Query :", splited_query, end="\n\n")
         return splited_query
 
 
@@ -103,9 +103,9 @@ class Search_database():
         results = sorted(results, key=lambda i: i['similarity'], reverse=True)
 
         # 以下で結果を表示
-        print("Rank: Queryより類似度が高い順に展示を表示します。")
+        print("Rank: Queryより類似度が高い順に展示を表示します。\n")
         for i, result in enumerate(results[:self.exhibition_count]):
-            print(f'{i+1:>2}: {result["number"]:>3} {result["similarity"]:>.4f} {result["raw"][1]:>6} {result["raw"][0]:<30}  {result["name"]:<20}')
+            print(f'{i+1:>2}: {result["number"]:>3} {result["similarity"]:>5.4f} {result["raw"][1]:>6} {result["raw"][0]:>15}  {result["name"]}')
 
         exhibition_text = "\n".join([f"{index+1}. " + exhibition["embedding_text"] for index, exhibition in enumerate(results[:self.exhibition_count])])
         #exhibition_text = "\n".join([f"{index+1}. " + exhibition["raw"][1] + " "+exhibition["raw"][0] + " "+exhibition["name"] for index, exhibition in enumerate(results[:exhibition_count])])
@@ -116,7 +116,7 @@ class Search_database():
             "exhibition_name": {展示名},
             "exhibition_reason": {その展示を選んだ理由を含む来客者への返答}
         }
-        """
+        """.replace("    ", "").strip()
 
         third_msg = f"""
         上記のキーワードをもとに検索した結果、以下の{self.exhibition_count}個の展示が検索エンジンから提案されました。
@@ -128,8 +128,9 @@ class Search_database():
         出力はJSON形式で行ってください。
         """.replace("    ", "").strip()
 
-        print("\n>> 類似度の高い展示を元に返答を作成中...")
-        print("Input :\n", third_msg)
+
+        print("\n\n>> 類似度の高い展示を元に返答を作成中...\n")
+        # print("Input :\n", third_msg)
         messages = [
             {"role": "system", "content": self.init_role_describe},
             {"role": "system", "content": output_system},
@@ -145,7 +146,7 @@ class Search_database():
 
         # 最終的な出力
         gpt_answer  = response.choices[0]["message"]["content"].strip()
-        print("Output :\n", gpt_answer)
+        print("ANSWER :\n", gpt_answer)
         try:
             dictionary = json.loads(gpt_answer)
         except:
@@ -160,14 +161,15 @@ class Search_database():
         prefecture = best_exhibition["raw"][1]
         museum_name  = best_exhibition["raw"][0]
         exhibition_name = best_exhibition["name"]
+        url = best_exhibition["raw"][5]
 
         print("\n>> 出力結果を表示します。")
         print("{} {} {} {}".format(index_num, prefecture ,museum_name ,exhibition_name))
         print(exhibition_reason)
-        return index_num, prefecture, museum_name, exhibition_name, exhibition_reason
+        return index_num, prefecture, museum_name, exhibition_name, exhibition_reason, url
+
 
 if __name__ == "__main__":
     SDB  = Search_database()
-
     SDB.make_QUERY("ドラえもんに会いたいです！")
     SDB.make_output()

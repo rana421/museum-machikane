@@ -4,60 +4,68 @@ import asyncio
 import websockets
 import json
 import search_database
-
+from module import pdf, print_pdf
 
 address = "0.0.0.0"
 port = 8001
+timeout = 60 * 5
+
 # 受信コールバック
 async def server(websocket, path):
     try:
         # 受信
-        received_packet = await websocket.recv()
+        received_packet = await asyncio.wait_for(websocket.recv(), timeout=timeout)
         receive_msg = json.loads(received_packet.decode())
 
-        print(f"came from :{path} , message: {receive_msg}")
+        print(f">> received message: {receive_msg}")
 
         #ここから送信処理
-        if receive_msg["TYPE"] == "COM_TEST":
-            test_response = {"TYPE":"COM_TEST","RESPONSE":"Hello! Unity! from Python"}
-            packet = json.dumps(test_response , ensure_ascii=False).encode('utf-8')
-            await websocket.send(packet)
-        
-        elif receive_msg["TYPE"] == "USER_INPUT":
-
+        if receive_msg["TYPE"] == "USER_INPUT":
             # 送信
             user_input = receive_msg["user_input"]
-            user_input .replace('\u200b', ' ') #半角の文字コードを消している
-            user_input .replace('\u3000', ' ') #全角の文字コードを消している
-            print(user_input)
-            #await asyncio.sleep(1)
+            user_input.replace('\u200b', ' ') #半角の文字コードを消している
+            user_input.replace('\u3000', ' ') #全角の文字コードを消している
             QUERY = SDB.make_QUERY(user_input=user_input)
             print_query = ""
             for query in QUERY:
                 print_query += query +","
+            # Quryを送信
             QUERY_DICT = {"TYPE": "QUERY" ,"QUERY":print_query }
             packet = json.dumps(QUERY_DICT, ensure_ascii=False).encode('utf-8')
-            #packet = json.dumps(QUERY_DICT)
             await websocket.send(packet)
 
-            #await asyncio.sleep(1)
-            index_num, prefecture, museum_name, exhibition_name, exhibition_reason = SDB.make_output()
-            ANS_DICT = {"TYPE" : "ANSWER", "prefecture":prefecture,"museum_name": museum_name,"exhibition_name":exhibition_name,"exhibition_reason":exhibition_reason}
+            # 検索結果を送信
+            index_num, prefecture, museum_name, exhibition_name, exhibition_reason, url = SDB.make_output()
+            ANS_DICT = {"TYPE" : "ANSWER", "prefecture": prefecture, "museum_name": museum_name, "exhibition_name": exhibition_name, "exhibition_reason": exhibition_reason}
             packet = json.dumps(ANS_DICT, ensure_ascii=False).encode('utf-8')
-            #packet = json.dumps(ANS_DICT)
             await websocket.send(packet)
+
+            # PDFを印刷
+            pdf.create_PDF(museum_name, exhibition_name, exhibition_reason, url)
+            # print_pdf.send_printer("./sample.pdf", "Brother MFC-L2750DW E302")
+            # print_pdf.send_printer("./sample.pdf", "EW-M571T Series(ネットワーク)")
+            PRINT_DICT = {"TYPE" : "PRINT"}
+            packet = json.dumps(PRINT_DICT, ensure_ascii=False).encode('utf-8')
+            await websocket.send(packet)
+
+
+            # CLOSEを送信
+            await asyncio.sleep(5)
+            CLOSE_DICT = {"TYPE" : "CLOSE"}
+            packet = json.dumps(CLOSE_DICT, ensure_ascii=False).encode('utf-8')
+            await websocket.send(packet)
+
 
     except websockets.ConnectionClosedError:
         print("クライアント側により切断されました。")
-        
+
     finally:
         await websocket.close()  # 必ず接続を閉じる
 
+async def main():
+    async with websockets.serve(server, address, port, ping_interval = None):
+        await asyncio.Future()
 
-
-
-SDB = search_database.Search_database()
-start_server = websockets.serve(server, address, port)
-# サーバー立ち上げ
-asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().run_forever()
+if __name__ == "__main__":
+    SDB = search_database.Search_database()
+    asyncio.run(main())
