@@ -97,12 +97,12 @@ def create_PDF(museum_name, exhibition_name, chatgpt_response, url):
 
 
         # 当選機能の追加 当選の場合はシーリングスタンプを押す
-        if random.random() < probability and hit_count < max_hit:
-            canvas.saveState()
-            canvas.translate(420, B5[1] - 180)
-            canvas.rotate(30)
-            canvas.drawImage(sealing_path, 0, 0, width=75, height=75)
-            canvas.restoreState()
+        # if random.random() < probability and hit_count < max_hit:
+        #     canvas.saveState()
+        #     canvas.translate(420, B5[1] - 180)
+        #     canvas.rotate(30)
+        #     canvas.drawImage(sealing_path, 0, 0, width=75, height=75)
+        #     canvas.restoreState()
             # hit_count += 1
             # with open("./hit_count.json", "w") as f:
             #     json.dump({"count": hit_count}, f)

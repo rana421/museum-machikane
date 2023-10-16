@@ -50,10 +50,10 @@ async def server(websocket, path):
 
 
             # CLOSEを送信
-            await asyncio.sleep(5)
-            CLOSE_DICT = {"TYPE" : "CLOSE"}
-            packet = json.dumps(CLOSE_DICT, ensure_ascii=False).encode('utf-8')
-            await websocket.send(packet)
+            # await asyncio.sleep(5)
+            # CLOSE_DICT = {"TYPE" : "CLOSE"}
+            # packet = json.dumps(CLOSE_DICT, ensure_ascii=False).encode('utf-8')
+            # await websocket.send(packet)
 
 
     except websockets.ConnectionClosedError:
