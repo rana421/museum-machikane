@@ -14,7 +14,8 @@ timeout = 60 * 5
 async def server(websocket, path):
     try:
         # 受信
-        received_packet = await asyncio.wait_for(websocket.recv(), timeout=timeout)
+        #received_packet = await asyncio.wait_for(websocket.recv(), timeout=timeout)
+        received_packet = await websocket.recv()
         receive_msg = json.loads(received_packet.decode())
 
         print(f">> received message: {receive_msg}")
@@ -48,7 +49,11 @@ async def server(websocket, path):
             packet = json.dumps(PRINT_DICT, ensure_ascii=False).encode('utf-8')
             await websocket.send(packet)
 
-
+        elif receive_msg["TYPE"] == "COM_TEST":
+            TEST_DICT = {"TYPE": "COM_TEST" ,"RESPONSE":"Hello Unity From Python!" }
+            packet = json.dumps(TEST_DICT, ensure_ascii=False).encode('utf-8')
+            await websocket.send(packet)
+            print("sent a test message to unity")
             # CLOSEを送信
             # await asyncio.sleep(5)
             # CLOSE_DICT = {"TYPE" : "CLOSE"}
@@ -62,10 +67,16 @@ async def server(websocket, path):
     finally:
         await websocket.close()  # 必ず接続を閉じる
 
-async def main():
-    async with websockets.serve(server, address, port, ping_interval = None):
-        await asyncio.Future()
+# async def main():
+#     async with websockets.serve(server, address, port, ping_interval = None):
+#         await asyncio.Future()
 
-if __name__ == "__main__":
-    SDB = search_database.Search_database()
-    asyncio.run(main())
+# if __name__ == "__main__":
+#     SDB = search_database.Search_database()
+#     asyncio.run(main())
+
+#上記のコードだとunityとの連携でうまく動かなかったので一応以下のやつで動作させます
+SDB = search_database.Search_database()
+start_server = websockets.serve(server, address, port)
+asyncio.get_event_loop().run_until_complete(start_server)
+asyncio.get_event_loop().run_forever()
