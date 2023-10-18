@@ -19,6 +19,7 @@ async def server(websocket, path):
         receive_msg = json.loads(received_packet.decode())
 
         print(f">> received message: {receive_msg}")
+        #>> received message: {'TYPE': 'USER_INPUT', 'user_input': 'スラムダンクが好きです', '_is_kansai_only': 'False'}という形で帰ってきます
 
         #ここから送信処理
         if receive_msg["TYPE"] == "USER_INPUT":
@@ -27,11 +28,11 @@ async def server(websocket, path):
             user_input.replace('\u200b', ' ') #半角の文字コードを消している
             user_input.replace('\u3000', ' ') #全角の文字コードを消している
             QUERY = SDB.make_QUERY(user_input=user_input)
-            print_query = ""
-            for query in QUERY:
-                print_query += query +","
+            # print_query = ""
+            # for query in QUERY:
+            #     print_query += query +","
             # Quryを送信
-            QUERY_DICT = {"TYPE": "QUERY" ,"QUERY":print_query }
+            QUERY_DICT = {"TYPE": "QUERY" ,"QUERY":QUERY }
             packet = json.dumps(QUERY_DICT, ensure_ascii=False).encode('utf-8')
             await websocket.send(packet)
 
