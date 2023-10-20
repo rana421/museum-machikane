@@ -27,9 +27,9 @@ class Search_database():
         self.INDEX = None
         self.QUERY = None
         self.user_input = None
-        self.exhibition_count = 3
+        self.exhibition_count = 5
 
-        with open('../database/embedding.json') as f:
+        with open('../../database/embedding.json') as f:
             self.INDEX = json.load(f)
 
         self.init_role_describe = """

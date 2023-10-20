@@ -3,12 +3,14 @@
 import asyncio
 import websockets
 import json
-import search_database
-from module import pdf, print_pdf
+from module import pdf, print_pdf,search_database
 
 address = "0.0.0.0"
 port = 8001
 timeout = 60 * 5
+
+printer_name = "Brother MFC-L2750DW_kanemoto"
+printer_on  = False #プリントするかどうか、テスト用
 
 # 受信コールバック
 async def server(websocket, path):
@@ -31,7 +33,7 @@ async def server(websocket, path):
             # print_query = ""
             # for query in QUERY:
             #     print_query += query +","
-            # Quryを送信
+            # Quryを送信kl.j
             QUERY_DICT = {"TYPE": "QUERY" ,"QUERY":QUERY }
             packet = json.dumps(QUERY_DICT, ensure_ascii=False).encode('utf-8')
             await websocket.send(packet)
@@ -42,10 +44,13 @@ async def server(websocket, path):
             packet = json.dumps(ANS_DICT, ensure_ascii=False).encode('utf-8')
             await websocket.send(packet)
 
-            # PDFを印刷
+            
+            # PDFを作成
             pdf.create_PDF(museum_name, exhibition_name, exhibition_reason, url)
-            # print_pdf.send_printer("./sample.pdf", "Brother MFC-L2750DW E302")
-            # print_pdf.send_printer("./sample.pdf", "EW-M571T Series(ネットワーク)")
+            if printer_on:
+                #pdfを印刷
+                print_pdf.send_printer("./sample.pdf", printer_name )
+                # print_pdf.send_printer("./sample.pdf", "EW-M571T Series(ネットワーク)")
             PRINT_DICT = {"TYPE" : "PRINT"}
             packet = json.dumps(PRINT_DICT, ensure_ascii=False).encode('utf-8')
             await websocket.send(packet)
@@ -68,16 +73,16 @@ async def server(websocket, path):
     finally:
         await websocket.close()  # 必ず接続を閉じる
 
-# async def main():
-#     async with websockets.serve(server, address, port, ping_interval = None):
-#         await asyncio.Future()
+async def main():
+    async with websockets.serve(server, address, port, ping_interval = None):
+        await asyncio.Future()
 
-# if __name__ == "__main__":
-#     SDB = search_database.Search_database()
-#     asyncio.run(main())
+if __name__ == "__main__":
+    SDB = search_database.Search_database()
+    asyncio.run(main())
 
 #上記のコードだとunityとの連携でうまく動かなかったので一応以下のやつで動作させます
-SDB = search_database.Search_database()
-start_server = websockets.serve(server, address, port)
-asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().run_forever()
+# SDB = search_database.Search_database()
+# start_server = websockets.serve(server, address, port)
+# asyncio.get_event_loop().run_until_complete(start_server)
+# asyncio.get_event_loop().run_forever()
