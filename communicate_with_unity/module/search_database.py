@@ -7,9 +7,9 @@ import os,json
 os.chdir(os.path.dirname(os.path.abspath(__file__))) #カレントディレクトリを固定
 
 # .envファイルから環境変数を読み込む
-from dotenv import load_dotenv
-dotenv_path = '../.env'
-load_dotenv(dotenv_path)
+# from dotenv import load_dotenv
+# dotenv_path = '../.env'
+# load_dotenv(dotenv_path)
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 openai.api_key = OPENAI_API_KEY
@@ -19,22 +19,22 @@ class Search_database():
 
     def __init__(self):
 
-        self.model = "gpt-3.5-turbo"
-        # self.model = "gpt-4"
+        #self.model = "gpt-3.5-turbo"
+        self.model = "gpt-4"
 
 
         # データベースの読み込み
         self.INDEX = None
         self.QUERY = None
         self.user_input = None
-        self.exhibition_count = 3
+        self.exhibition_count = 5
 
-        with open('../database/embedding.json') as f:
+        with open('../../database/embedding.json') as f:
             self.INDEX = json.load(f)
 
         self.init_role_describe = """
         あなたは大阪大学ミュージアム同好会というサークルに所属している優秀なアシスタントAIです。名前は「ミュージアム同好会bot」です。
-        あなたの仕事は、来客者様からの入力を元に、来客者様に適している博物館内の展示を探すことです。
+        あなたの仕事は、来客者様からの入力を元に、来客者様に適している博物館内の展示を探すこ:とです。
         あなたはおしゃべりで、来客者様の入力に対して愛想よく答えてくれます。
         喋り方は20代の女子大学生のような喋り方で、基本敬語で返します。社交辞令を身に着けつつ、はつらつとしています。
         また、例えば来客者様が子供のような場合はひらがなでわかりやすく返すような、来客者様がわかりやすいような話し方を心がけてください。
