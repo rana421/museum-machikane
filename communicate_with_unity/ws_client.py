@@ -5,6 +5,7 @@ import asyncio
 import websockets
 import json
 from module import audio_input
+# TODO: ChatGPTの出力の時間を計測する
 
 uri = "ws://localhost:8001"
 timeout = 60 * 5
@@ -35,7 +36,7 @@ async def amain():
             try:
                 receiveData = await asyncio.wait_for(websocket.recv(), timeout=timeout)
                 dictionary = json.loads(receiveData.decode())
-                #print(f"{dictionary}")
+                print(f"{dictionary}")
 
                 if dictionary["TYPE"] == "QUERY":
                     print("\n>> 提案された検索ワード：")
@@ -48,32 +49,36 @@ async def amain():
                     print("「"+dictionary["museum_name"] + "  "+dictionary["exhibition_name"] +"」")
                     #print(dictionary["exhibition_name"])
                     print("\n--------同好会botからの一言--------")
-                    print(dictionary["exhibition_reason"])
+                    print(dictionary["exhibition_reason"], end="\n\n")
 
-                elif dictionary["TYPE"] == "PRINT":
-                    print(">> 結果をPDFで印刷しています")
+                    # print命令を送信
+                    print(">> 結果をPDFで印刷します")
+                    dictionary = {"TYPE": "PRINT"}
+                    packet = json.dumps(dictionary).encode()
+                    await websocket.send(packet)
 
                 elif dictionary["TYPE"] == "CLOSE":
                     print(">> CLOSE")
-                    websocket.close()
+                    await websocket.close()
 
-            # except asyncio.TimeoutError:
-            #     print(">> タイムアウトしました。")
-            #     break
+
+            except asyncio.TimeoutError:
+                print(">> タイムアウトしました。")
+                break
 
             except websockets.exceptions.ConnectionClosedOK:
                 print("CLOSED")
                 break
 
-            # except Exception as e:
-            #     print(e)
-            #     break
+            except Exception as e:
+                print(e)
+                break
 
 if __name__ == "__main__":
-    # loop = asyncio.new_event_loop()
-    # asyncio.set_event_loop(loop)
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     try:
-        asyncio.run(amain())
-        # loop.run_until_complete(amain())
+        # asyncio.run(amain())
+        loop.run_until_complete(amain())
     except KeyboardInterrupt:
         pass
