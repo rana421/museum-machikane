@@ -24,6 +24,7 @@ backgpund_path = "./image/material_201006_01_white.png"
 backgpund_rote_path = "./image/material_201006_01_white_rotate.png"
 logo_path = "./image/logo.png"
 sealing_path = "./image/sealing.png"
+hit_path = "./image/hit.png"
 
 font_name = "genshingothic"
 font_path = "./font/genshingothic-20150607/GenShinGothic-Normal.ttf"
@@ -32,7 +33,7 @@ x_qr_path = "./image/qr_x.png"
 instagram_qr_path = "./image/qr_insta.png"
 
 
-def create_PDF(museum_name, exhibition_name, chatgpt_response, url):
+def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url):
     # フォントの登録
     pdfmetrics.registerFont(TTFont(font_name, font_path))
 
@@ -90,19 +91,23 @@ def create_PDF(museum_name, exhibition_name, chatgpt_response, url):
 
         # シーリングスタンプの配置
         canvas.saveState()
-        canvas.translate(60, B5[1] - 180)
+        # canvas.translate(60, B5[1] - 130) # 左上
+        canvas.translate(90, B5[1] - 700)
         canvas.rotate(30)
         canvas.drawImage(sealing_path, 0, 0, width=75, height=75)
         canvas.restoreState()
 
 
+        max_hit = 100
+        hit_count = 10
         # 当選機能の追加 当選の場合はシーリングスタンプを押す
-        # if random.random() < probability and hit_count < max_hit:
-        #     canvas.saveState()
-        #     canvas.translate(420, B5[1] - 180)
-        #     canvas.rotate(30)
-        #     canvas.drawImage(sealing_path, 0, 0, width=75, height=75)
-        #     canvas.restoreState()
+        if random.random() < probability and hit_count < max_hit:
+            canvas.saveState()
+            # canvas.translate(420, B5[1] - 130)
+            canvas.translate(390, B5[1] - 700)
+            canvas.rotate(30)
+            canvas.drawImage(hit_path, 0, 0, width=75, height=75)
+            canvas.restoreState()
             # hit_count += 1
             # with open("./hit_count.json", "w") as f:
             #     json.dump({"count": hit_count}, f)
@@ -111,21 +116,23 @@ def create_PDF(museum_name, exhibition_name, chatgpt_response, url):
     story = []
     doc = SimpleDocTemplate("sample.pdf", pagesize=B5)
 
-    story.append(Paragraph("あなたへのおすすめは...", get_style(font_name, 20, 20)))
+    story.append(Paragraph(user_input, get_style(font_name, 20, 20)))
+
+    story.append(Paragraph("と入力したあなたへのおすすめは...", get_style(font_name, 20, 20)))
 
     story.append(Spacer(1, 20))
 
     story.append(Paragraph(museum_name, get_style(font_name, 30, 30)))
 
-    story.append(Spacer(1, 40))
+    story.append(Spacer(1, 30))
 
     story.append(Paragraph(exhibition_name, get_style(font_name, 30, 30)))
 
-    story.append(Spacer(1, 30))
+    story.append(Spacer(1, 20))
 
     story.append(Paragraph(chatgpt_response, get_style(font_name, 10, 15)))
 
-    story.append(Spacer(1, 20))
+    story.append(Spacer(1, 10))
 
     #QRコードの設定
     qr = qrcode.QRCode(
@@ -159,8 +166,9 @@ def create_PDF(museum_name, exhibition_name, chatgpt_response, url):
 
 
 if __name__ == "__main__":
+    user_input = "浮世絵に興味がある"
     museum_name = "公益財団法人中野美術館"
     exhibition_name = "近代の日本画〈日本画展示室〉"
-    chatgpt_response = "浮世絵に興味がおありとのことですが、近代の日本画展示室では富岡鉄斎や横山大観などの著名な日本画家の作品を展示しています。彼らの作品は 浮世絵とはまた異なる美しさや表現方法を持っており、日本の伝統に根ざした芸術の魅力を感じることができます。ぜひ、この展示をご覧いただき 、日本画の魅力に触れてみてください。展示は2023年9月10日から11月13日まで開催されています。お楽しみに！"
+    chatgpt_response = "浮世絵に興味がおありとのことですが、近代の日本画展示室では富岡鉄斎や横山大観などの著名な日本画家の作品を展示しています。彼らの作品は 浮世絵とはまた異なる美しさや表現方法を持っており、日本の伝統に根ざした芸術の魅力を感じることができます。ぜひ、この展示をご覧いただき 、日本画の魅力に触れてみてください。展示は2023年9月10日から11月13日まで開催されています。お楽しみに！あああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ"
     url = "https://www.nakamuseum.jp/exhibition/2021/2021_09_10.html"
-    create_PDF(museum_name, exhibition_name, chatgpt_response, url)
+    create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url)
