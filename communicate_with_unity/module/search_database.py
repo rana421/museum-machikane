@@ -4,7 +4,7 @@
 import openai
 from openai.embeddings_utils import cosine_similarity
 import os,json
-os.chdir(os.path.dirname(os.path.abspath(__file__))) #カレントディレクトリを固定
+# os.chdir(os.path.dirname(os.path.abspath(__file__))) #カレントディレクトリを固定
 
 # .envファイルから環境変数を読み込む
 # from dotenv import load_dotenv
@@ -24,13 +24,12 @@ class Search_database():
 
 
         # データベースの読み込み
-        self.INDEX = None
-        self.QUERY = None
-        self.user_input = None
         self.exhibition_count = 5
 
-        with open('../../database/embedding.json') as f:
-            self.INDEX = json.load(f)
+        with open('../database/embedding_all.json') as f:
+            self.embedding_all = json.load(f)
+        with open('../database/embedding_kansai.json') as f:
+            self.embedding_kansai = json.load(f)
 
         self.init_role_describe = """
         あなたは大阪大学ミュージアム同好会というサークルに所属している優秀なアシスタントAIです。名前は「ミュージアム同好会bot」です。
@@ -39,7 +38,6 @@ class Search_database():
         喋り方は20代の女子大学生のような喋り方で、基本敬語で返します。社交辞令を身に着けつつ、はつらつとしています。
         また、例えば来客者様が子供のような場合はひらがなでわかりやすく返すような、来客者様がわかりやすいような話し方を心がけてください。
         """.replace("    ", "").strip()
-        self.message = None
 
 
     def make_QUERY(self,user_input):
@@ -70,22 +68,27 @@ class Search_database():
         )
 
         # これが検索用の文字列
-        QUERY  = response.choices[0]["message"]["content"].strip()
-        self.QUERY = QUERY
-        splited_query = QUERY.split(",")
+        query  = response.choices[0]["message"]["content"].strip()
+        self.query = query
+        splited_query = query.split(",")
         print("Query :", splited_query, end="\n\n")
         return splited_query
 
 
-    def make_output(self):
+    def make_output(self, mode="all"):
 
         # 検索用の文字列をベクトル化
         query = openai.Embedding.create(
             model='text-embedding-ada-002',
-            input=self.QUERY
+            input=self.query
         )
 
         query = query['data'][0]['embedding']
+
+        if mode == "all":
+            embedding = self.embedding_all
+        elif mode == "kansai":
+            embedding = self.embedding_kansai
 
         # 総当りで類似度を計算
         results = map(
@@ -97,7 +100,7 @@ class Search_database():
                 # ここでクエリと各文章のコサイン類似度を計算
                 'similarity': cosine_similarity(i['embedding'], query)
                 },
-            self.INDEX
+            embedding
         )
         # コサイン類似度で降順（大きい順）にソート
         results = sorted(results, key=lambda i: i['similarity'], reverse=True)
@@ -135,7 +138,7 @@ class Search_database():
             {"role": "system", "content": self.init_role_describe},
             {"role": "system", "content": output_system},
             {"role": "user", "content": self.message},
-            {"role":"assistant","content": self.QUERY},
+            {"role":"assistant","content": self.query},
             {"role": "user", "content": third_msg}
         ]
 
@@ -172,4 +175,4 @@ class Search_database():
 if __name__ == "__main__":
     SDB  = Search_database()
     SDB.make_QUERY("ドラえもんに会いたいです！")
-    SDB.make_output()
+    SDB.make_output(mode="all")
