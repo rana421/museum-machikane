@@ -91,11 +91,17 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url):
 
         # シーリングスタンプの配置
         canvas.saveState()
+        canvas.translate(B5[0] // 2 - 30, B5[1] - 75)
         # canvas.translate(60, B5[1] - 130) # 左上
-        canvas.translate(90, B5[1] - 700)
-        canvas.rotate(30)
-        canvas.drawImage(sealing_path, 0, 0, width=75, height=75)
+        # canvas.translate(90, B5[1] - 700) # 左下
+        canvas.rotate(0)
+        canvas.drawImage(sealing_path, 0, 0, width=60, height=60)
         canvas.restoreState()
+
+
+        # SNSのQRコードの配置
+        canvas.drawImage(x_qr_path,          60, 20, width=90, height=90)
+        canvas.drawImage(instagram_qr_path, 350, 20, width=90, height=90)
 
 
         max_hit = 100
@@ -104,9 +110,9 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url):
         if random.random() < probability and hit_count < max_hit:
             canvas.saveState()
             # canvas.translate(420, B5[1] - 130)
-            canvas.translate(390, B5[1] - 700)
+            canvas.translate(390, B5[1] - 600)
             canvas.rotate(30)
-            canvas.drawImage(hit_path, 0, 0, width=75, height=75)
+            canvas.drawImage(hit_path, 0, 0, width=100, height=100)
             canvas.restoreState()
             # hit_count += 1
             # with open("./hit_count.json", "w") as f:
@@ -144,22 +150,25 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url):
     img = qr.make_image()
     img.save(url_path)
 
-    # 展示url, twitter, instagramのqrを配置
+    # # 展示url, twitter, instagramのqrを配置
+    # # 3つの画像とテキストのリストを作成します
+    # image_paths = [url_path, x_qr_path, instagram_qr_path]
+    # image_captions = ["展示url", "X(twitter)", "instagram"]
 
-    # 3つの画像とテキストのリストを作成します
-    image_paths = [url_path, x_qr_path, instagram_qr_path]
-    image_captions = ["展示url", "X(twitter)", "instagram"]
+    # # Image オブジェクトのリストと、それに対応するキャプションのリストを作成します
+    # images = [Image(img_path, width=4*cm, height=4*cm) for img_path in image_paths]
+    # styles = getSampleStyleSheet()
+    # captions = [Paragraph(text, get_style(font_name, 10, 10)) for text in image_captions]
 
-    # Image オブジェクトのリストと、それに対応するキャプションのリストを作成します
-    images = [Image(img_path, width=4*cm, height=4*cm) for img_path in image_paths]
-    styles = getSampleStyleSheet()
-    captions = [Paragraph(text, get_style(font_name, 10, 10)) for text in image_captions]
+    # # Table を使って画像とキャプションを配置します
+    # data = [images, captions]
+    # table = Table(data, colWidths=[4.5*cm]*3)
 
-    # Table を使って画像とキャプションを配置します
-    data = [images, captions]
-    table = Table(data, colWidths=[4.5*cm]*3)
+    # story.append(table)
 
-    story.append(table)
+    story.append(Image(url_path, width=4*cm, height=4*cm))
+    story.append(Paragraph("展示url", get_style(font_name, 10, 10)))
+
 
     # ドキュメントに追加
     doc.build(story, onFirstPage=background_image, onLaterPages=background_image)
@@ -169,6 +178,6 @@ if __name__ == "__main__":
     user_input = "浮世絵に興味がある"
     museum_name = "公益財団法人中野美術館"
     exhibition_name = "近代の日本画〈日本画展示室〉"
-    chatgpt_response = "浮世絵に興味がおありとのことですが、近代の日本画展示室では富岡鉄斎や横山大観などの著名な日本画家の作品を展示しています。彼らの作品は 浮世絵とはまた異なる美しさや表現方法を持っており、日本の伝統に根ざした芸術の魅力を感じることができます。ぜひ、この展示をご覧いただき 、日本画の魅力に触れてみてください。展示は2023年9月10日から11月13日まで開催されています。お楽しみに！あああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ"
+    chatgpt_response = "浮世絵に興味がおありとのことですが、近代の日本画展示室では富岡鉄斎や横山大観などの著名な日本画家の作品を展示しています。彼らの作品は 浮世絵とはまた異なる美しさや表現方法を持っており、日本の伝統に根ざした芸術の魅力を感じることができます。ぜひ、この展示をご覧いただき 、日本画の魅力に触れてみてください。展示は2023年9月10日から11月13日まで開催されています。お楽しみに！"
     url = "https://www.nakamuseum.jp/exhibition/2021/2021_09_10.html"
     create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url)
