@@ -20,7 +20,7 @@ audio_file = "./audio/test.wav"
 
 # user_input = audio_input.recognize_audio(audio_file)
 # user_input = input("Input: ")
-user_input = '浮世絵に興味があります！'
+user_input = 'でかい天使'
 
 print(">> 音声入力の終了")
 print(">> 入力された内容：", user_input)
