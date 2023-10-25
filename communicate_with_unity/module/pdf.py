@@ -9,15 +9,9 @@ from reportlab.lib.enums import TA_CENTER
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
-global hit_count
 
-hit_count = 0
-
-# with open("./hit_count.json", "r") as f:
-#     hit_count = json.load(f)["count"]
-
-probability = 1
-max_hit = 100
+MAX_HIT_COUNT = 100
+PROBABILITY = 0.5
 
 url_path = "./image/qr.png"
 backgpund_path = "./image/material_201006_01_white.png"
@@ -104,19 +98,20 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url):
         canvas.drawImage(instagram_qr_path, 350, 20, width=90, height=90)
 
 
-        max_hit = 100
-        hit_count = 10
+        with open("./hit_count.json", "r") as f:
+            hit_count = json.load(f)["count"]
+            print(">> hit_count:", hit_count)
         # 当選機能の追加 当選の場合はシーリングスタンプを押す
-        if random.random() < probability and hit_count < max_hit:
+        if random.random() < PROBABILITY and hit_count < MAX_HIT_COUNT:
             canvas.saveState()
             # canvas.translate(420, B5[1] - 130)
             canvas.translate(390, B5[1] - 600)
             canvas.rotate(30)
             canvas.drawImage(hit_path, 0, 0, width=100, height=100)
             canvas.restoreState()
-            # hit_count += 1
-            # with open("./hit_count.json", "w") as f:
-            #     json.dump({"count": hit_count}, f)
+            hit_count += 1
+            with open("./hit_count.json", "w") as f:
+                json.dump({"count": hit_count}, f)
 
 
     story = []

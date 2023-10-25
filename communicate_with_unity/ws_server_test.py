@@ -74,7 +74,7 @@ async def server(websocket, path):
             print(">> PDFを作成し印刷を開始します\n")
             # PDFを印刷
             pdf.create_PDF(user_input, museum_name, exhibition_name, exhibition_reason, url)
-            print_pdf.send_printer("./sample.pdf", "Brother MFC-L2750DW E302")
+            # print_pdf.send_printer("./sample.pdf", "Brother MFC-L2750DW E302")
             # print_pdf.send_printer("./sample.pdf", "EW-M571T Series(ネットワーク)")
 
             # CLOSEを送信

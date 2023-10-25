@@ -85,7 +85,6 @@ async def amain():
                 print("[検索結果]\n")
                 print( "@"+ receive_msg["prefecture"])
                 print("「"+receive_msg["museum_name"] + "  "+receive_msg["exhibition_name"] +"」")
-                #print(receive_msg["exhibition_name"])
                 print("\n--------同好会botからの一言--------")
                 print(receive_msg["exhibition_reason"], end="\n\n")
 
