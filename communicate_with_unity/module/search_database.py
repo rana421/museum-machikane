@@ -75,7 +75,7 @@ class Search_database():
         return splited_query
 
 
-    def make_output(self, mode="all"):
+    def make_output(self, is_kansai_only=False):
 
         # 検索用の文字列をベクトル化
         query = openai.Embedding.create(
@@ -85,9 +85,9 @@ class Search_database():
 
         query = query['data'][0]['embedding']
 
-        if mode == "all":
+        if not is_kansai_only:
             embedding = self.embedding_all
-        elif mode == "kansai":
+        else:
             embedding = self.embedding_kansai
 
         # 総当りで類似度を計算
@@ -144,7 +144,7 @@ class Search_database():
 
         response = openai.ChatCompletion.create(
             model=self.model,
-            messages=messages
+            messages=messages,
         )
 
         # 最終的な出力
@@ -175,4 +175,4 @@ class Search_database():
 if __name__ == "__main__":
     SDB  = Search_database()
     SDB.make_QUERY("ドラえもんに会いたいです！")
-    SDB.make_output(mode="all")
+    SDB.make_output(is_kansai_only=False)

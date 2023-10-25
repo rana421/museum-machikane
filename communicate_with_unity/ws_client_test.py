@@ -13,7 +13,7 @@ timeout = 60 * 5
 audio_file = "./audio/test.wav"
 
 # input_type = "audio"
-# mode = "kansai"
+#  _is_kansai_only = Trur
 
 async def amain():
     async with websockets.connect(uri, close_timeout=timeout, ping_timeout=None) as websocket:
@@ -22,11 +22,18 @@ async def amain():
         print(">> 希望の展示についてお聞かせください！\n")
 
         print(">> 検索範囲を選択してください")
-        print(">> all: 全国の展示を検索")
-        print(">> kansai: 関西の展示を検索")
-        mode = input("Input: ")
+        print(">> 1: 全国の展示を検索")
+        print(">> 2: 関西の展示を検索")
+        is_kansai_input = input("Input: ")
+        if is_kansai_input == "1":
+            is_kansai_only = False
+        elif is_kansai_input == "2":
+            is_kansai_only = True
+        else:
+            print(">> 1か2を入力してください")
+            return
 
-        if mode == "all":
+        if not is_kansai_only:
             print(">> 全国の展示を検索します\n")
         else:
             print(">> 関西の展示を検索します\n")
@@ -46,7 +53,7 @@ async def amain():
                 binary_data = wr.readframes(wr.getnframes())
 
 
-            audio_dict = {"TYPE": "AUDIO_PARAMS", "PARAMS": params._asdict(), "MODE": mode}
+            audio_dict = {"TYPE": "AUDIO_PARAMS", "PARAMS": params._asdict(),  '_is_kansai_only': is_kansai_only}
             audio_packet = json.dumps(audio_dict).encode()
             await websocket.send(audio_packet)
             await websocket.send(binary_data)
@@ -57,7 +64,7 @@ async def amain():
             user_input = input("Input: ")
             # user_input = "浮世絵に興味があります！"
 
-            input_dict = {"TYPE": "USER_INPUT", "user_input": user_input, "MODE": mode}
+            input_dict = {"TYPE": "USER_INPUT", "input": user_input, '_is_kansai_only': is_kansai_only}
             input_packet = json.dumps(input_dict).encode()
             await websocket.send(input_packet)
 
@@ -66,12 +73,12 @@ async def amain():
             receive_msg = json.loads(msg.decode())
 
             if receive_msg["TYPE"] == "AUDIO":
-                user_input = receive_msg["USER_INPUT"]
+                user_input = receive_msg["input"]
 
                 print(">> 音声入力の終了")
                 print(">> 入力された内容：", user_input)
 
-                dictionary = {"TYPE": "USER_INPUT", "user_input": user_input, "MODE": mode}
+                dictionary = {"TYPE": "USER_INPUT", "input": user_input, '_is_kansai_only': is_kansai_only}
                 packet = json.dumps(dictionary).encode()
                 await websocket.send(packet)
                 print("\n\n>> 検索しています...")

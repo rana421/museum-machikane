@@ -28,26 +28,25 @@ async def server(websocket, path):
             audio_output = "./audio/tmp.wav"
             with wave.open(audio_output, "wb") as ww:
                 ww.setparams(audio_params)
-                #convert numpy arrays to binary format
                 ww.writeframes(msg)
 
             user_input = audio_input.recognize_audio("./audio/tmp.wav")
             print(">> 音声入力の終了\n")
             print(">> 入力された内容：", user_input, "\n\n")
 
-            audio_dict = {"TYPE": "AUDIO" ,"USER_INPUT": user_input}
+            audio_dict = {"TYPE": "AUDIO" ,"input": user_input}
             audio_packet = json.dumps(audio_dict, ensure_ascii=False).encode('utf-8')
             await websocket.send(audio_packet)
 
         if receive_msg["TYPE"] == "AUDIO_PARAMS":
             # audio ファイルのパラメータを受信
             audio_params = wave._wave_params(*receive_msg["PARAMS"].values())
-            search_mode = receive_msg["MODE"]
+            is_kansai_only = receive_msg["_is_kansai_only"]
 
         elif receive_msg["TYPE"] == "USER_INPUT":
-            search_mode = receive_msg["MODE"]
+            is_kansai_only = receive_msg["_is_kansai_only"]
 
-            user_input = receive_msg["user_input"]
+            user_input = receive_msg["input"]
             user_input.replace('\u200b', ' ') #半角の文字コードを消している
             user_input.replace('\u3000', ' ') #全角の文字コードを消している
             query = SDB.make_QUERY(user_input=user_input)
@@ -59,7 +58,8 @@ async def server(websocket, path):
             await websocket.send(packet)
 
             # 検索結果を送信
-            _, prefecture, museum_name, exhibition_name, exhibition_reason, url = SDB.make_output(mode=search_mode)
+            results = SDB.make_output(is_kansai_only=is_kansai_only)
+            _, prefecture, museum_name, exhibition_name, exhibition_reason, url = results
             answer_dict = {
                 "TYPE" : "ANSWER",
                 "prefecture": prefecture,

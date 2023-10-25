@@ -4,8 +4,9 @@ import random, json
 from reportlab.lib.pagesizes import B5
 from reportlab.lib.units import cm
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table
-from reportlab.lib.enums import TA_CENTER
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, Flowable
+from reportlab.lib.colors import black
+from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
@@ -23,24 +24,43 @@ hit_path = "./image/hit.png"
 font_name = "genshingothic"
 font_path = "./font/genshingothic-20150607/GenShinGothic-Normal.ttf"
 
+font_mintyou_name = "BIZ_UDMincho-Regular"
+font_mintyou_path = "./font/BIZ_UDMincho/BIZUDMincho-Regular.ttf"
+
 x_qr_path = "./image/qr_x.png"
 instagram_qr_path = "./image/qr_insta.png"
+
+
+class LineDrawing(Flowable):
+    """線を描画するためのFlowableクラス"""
+
+    def __init__(self, width, height):
+        Flowable.__init__(self)
+        self.width = width
+        self.height = height
+
+    def draw(self):
+        """ページに線を描画します"""
+        self.canv.setStrokeColor(black)
+        self.canv.setLineWidth(1)
+        self.canv.line(0, 0, self.width, 0)
 
 
 def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url):
     # フォントの登録
     pdfmetrics.registerFont(TTFont(font_name, font_path))
+    pdfmetrics.registerFont(TTFont(font_mintyou_name, font_mintyou_path))
 
     # スタイルの取得
     styles = getSampleStyleSheet()
 
-    def get_style(font_name, font_size, leading):
+    def get_style(font_name, font_size, leading, alignment=TA_CENTER):
         return ParagraphStyle(
             "CenteredStyle",
             fontName=font_name,
             fontSize=font_size,
             leading=leading,
-            alignment=TA_CENTER
+            alignment=alignment
         )
 
     def background_image(canvas, doc):
@@ -94,8 +114,12 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url):
 
 
         # SNSのQRコードの配置
-        canvas.drawImage(x_qr_path,          60, 20, width=90, height=90)
-        canvas.drawImage(instagram_qr_path, 350, 20, width=90, height=90)
+        sns_qr_size = 60
+        x_init = 70
+        center_x = B5[0] // 2 - sns_qr_size - x_init
+        canvas.drawImage(x_qr_path, x_init, 20, width=sns_qr_size, height=sns_qr_size)
+        print(x_init+sns_qr_size+center_x*2)
+        canvas.drawImage(instagram_qr_path, x_init+sns_qr_size+center_x*2, 20, width=sns_qr_size, height=sns_qr_size)
 
 
         with open("./hit_count.json", "r") as f:
@@ -107,7 +131,7 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url):
             # canvas.translate(420, B5[1] - 130)
             canvas.translate(390, B5[1] - 600)
             canvas.rotate(30)
-            canvas.drawImage(hit_path, 0, 0, width=100, height=100)
+            canvas.drawImage(hit_path, 0, 0, width=60, height=60)
             canvas.restoreState()
             hit_count += 1
             with open("./hit_count.json", "w") as f:
@@ -117,21 +141,39 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url):
     story = []
     doc = SimpleDocTemplate("sample.pdf", pagesize=B5)
 
-    story.append(Paragraph(user_input, get_style(font_name, 20, 20)))
+    story.append(Spacer(1, 40))
 
-    story.append(Paragraph("と入力したあなたへのおすすめは...", get_style(font_name, 20, 20)))
+    story.append(Paragraph("「"+user_input+"」", get_style(font_name, 20, 30)))
 
-    story.append(Spacer(1, 20))
+    story.append(Paragraph("と入力したあなたへのおすすめは...", get_style(font_name, 15, 15)))
 
-    story.append(Paragraph(museum_name, get_style(font_name, 30, 30)))
+    story.append(Spacer(1, 10))
+
+    story.append(LineDrawing(330, 2))
+    story.append(Spacer(1, 1))
+    story.append(LineDrawing(330, 2))
+
+    story.append(Spacer(1, 10))
+
+    story.append(Paragraph(museum_name, get_style(font_mintyou_name, 30, 30)))
 
     story.append(Spacer(1, 30))
 
-    story.append(Paragraph(exhibition_name, get_style(font_name, 30, 30)))
+    story.append(Paragraph(exhibition_name, get_style(font_mintyou_name, 30, 30)))
+
+    story.append(Spacer(1, 10))
+
+    story.append(LineDrawing(330, 2))
+    story.append(Spacer(1, 1))
+    story.append(LineDrawing(330, 2))
 
     story.append(Spacer(1, 20))
 
-    story.append(Paragraph(chatgpt_response, get_style(font_name, 10, 15)))
+    story.append(Paragraph("同好会botからの一言", get_style(font_name, 15, 15, alignment=TA_LEFT)))
+    story.append(Spacer(1, 20))
+
+
+    story.append(Paragraph(chatgpt_response, get_style(font_name, 10, 15, alignment=TA_LEFT)))
 
     story.append(Spacer(1, 10))
 
