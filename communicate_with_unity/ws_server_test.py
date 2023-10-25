@@ -7,6 +7,8 @@ import wave
 from module import pdf, print_pdf, audio_input, search_database
 
 import os
+os.chdir(os.path.dirname(os.path.abspath(__file__))) #カレントディレクトリを固定
+
 
 address = "0.0.0.0"
 port = 8001
@@ -34,7 +36,7 @@ async def server(websocket, path):
             print(">> 音声入力の終了\n")
             print(">> 入力された内容：", user_input, "\n\n")
 
-            audio_dict = {"TYPE": "AUDIO" ,"input": user_input}
+            audio_dict = {"TYPE": "AUDIO" ,"user_input": user_input}
             audio_packet = json.dumps(audio_dict, ensure_ascii=False).encode('utf-8')
             await websocket.send(audio_packet)
 
@@ -46,14 +48,14 @@ async def server(websocket, path):
         elif receive_msg["TYPE"] == "USER_INPUT":
             is_kansai_only = receive_msg["_is_kansai_only"]
 
-            user_input = receive_msg["input"]
+            user_input = receive_msg["user_input"]
             user_input.replace('\u200b', ' ') #半角の文字コードを消している
             user_input.replace('\u3000', ' ') #全角の文字コードを消している
             query = SDB.make_QUERY(user_input=user_input)
-            print_query = ",".join(query)
+            # print_query = ",".join(query)
 
             # Quryを送信
-            query_dict = {"TYPE": "QUERY", "QUERY": print_query}
+            query_dict = {"TYPE": "QUERY", "QUERY": query}
             packet = json.dumps(query_dict, ensure_ascii=False).encode('utf-8')
             await websocket.send(packet)
 
@@ -70,19 +72,24 @@ async def server(websocket, path):
             answer_packet = json.dumps(answer_dict, ensure_ascii=False).encode('utf-8')
             await websocket.send(answer_packet)
 
-        elif receive_msg["TYPE"] == "PRINT":
+
+        elif receive_msg["TYPE"] == "PRINT_START":
             print(">> PDFを作成し印刷を開始します\n")
             # PDFを印刷
             pdf.create_PDF(user_input, museum_name, exhibition_name, exhibition_reason, url)
             # print_pdf.send_printer("./sample.pdf", "Brother MFC-L2750DW E302")
             # print_pdf.send_printer("./sample.pdf", "EW-M571T Series(ネットワーク)")
 
-            # CLOSEを送信
-            CLOSE_DICT = {"TYPE" : "CLOSE"}
-            packet = json.dumps(CLOSE_DICT, ensure_ascii=False).encode('utf-8')
+            print(">> PDF印刷処理中...")
+            asyncio.wait(5)
+
+            # PRINT FINISHを送信
+            FINISH_DICT = {"TYPE" : "PRINT_FINISH"}
+            packet = json.dumps(FINISH_DICT, ensure_ascii=False).encode('utf-8')
             await websocket.send(packet)
 
             print(">> WEBSOCKET CLOSED\n")
+            await websocket.close()
 
 
         # テスト用

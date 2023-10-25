@@ -97,7 +97,7 @@ async def amain():
 
                 # print命令を送信
                 print(">> 結果をPDFで印刷します\n")
-                dictionary = {"TYPE": "PRINT"}
+                dictionary = {"TYPE": "PRINT_START"}
                 packet = json.dumps(dictionary).encode()
                 await websocket.send(packet)
 
