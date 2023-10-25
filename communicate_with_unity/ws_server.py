@@ -3,7 +3,7 @@
 import asyncio
 import websockets
 import json
-from module import pdf, print_pdf,search_database
+from module import pdf, print_pdf,search_database2
 
 address = "0.0.0.0"
 port = 8001
@@ -39,21 +39,21 @@ async def server(websocket, path):
             await websocket.send(packet)
 
                 # 検索結果を送信
-                index_num, prefecture, museum_name, exhibition_name, exhibition_reason, url = SDB.make_output()
-                ANS_DICT = {"TYPE" : "ANSWER", "prefecture": prefecture, "museum_name": museum_name, "exhibition_name": exhibition_name, "exhibition_reason": exhibition_reason}
-                packet = json.dumps(ANS_DICT, ensure_ascii=False).encode('utf-8')
-                await websocket.send(packet)
+            index_num, prefecture, museum_name, exhibition_name, exhibition_reason, url = SDB.make_output()
+            ANS_DICT = {"TYPE" : "ANSWER", "prefecture": prefecture, "museum_name": museum_name, "exhibition_name": exhibition_name, "exhibition_reason": exhibition_reason}
+            packet = json.dumps(ANS_DICT, ensure_ascii=False).encode('utf-8')
+            await websocket.send(packet)
 
             
             # PDFを作成
-            pdf.create_PDF(museum_name, exhibition_name, exhibition_reason, url)
-            if printer_on:
-                #pdfを印刷
-                print_pdf.send_printer("./sample.pdf", printer_name )
-                # print_pdf.send_printer("./sample.pdf", "EW-M571T Series(ネットワーク)")
-            PRINT_DICT = {"TYPE" : "PRINT"}
-            packet = json.dumps(PRINT_DICT, ensure_ascii=False).encode('utf-8')
-            await websocket.send(packet)
+            # pdf.create_PDF(museum_name, exhibition_name, exhibition_reason, url)
+            # if printer_on:
+            #     #pdfを印刷
+            #     print_pdf.send_printer("./sample.pdf", printer_name )
+            #     # print_pdf.send_printer("./sample.pdf", "EW-M571T Series(ネットワーク)")
+            # PRINT_DICT = {"TYPE" : "PRINT"}
+            # packet = json.dumps(PRINT_DICT, ensure_ascii=False).encode('utf-8')
+            # await websocket.send(packet)
 
         elif receive_msg["TYPE"] == "COM_TEST":
             TEST_DICT = {"TYPE": "COM_TEST" ,"RESPONSE":"Hello Unity From Python!" }
@@ -66,19 +66,20 @@ async def server(websocket, path):
             # packet = json.dumps(CLOSE_DICT, ensure_ascii=False).encode('utf-8')
             # await websocket.send(packet)
 
-        finally:
+    finally:
             await websocket.close()  # 必ず接続を閉じる
-            break
 
-async def main():
-    async with websockets.serve(server, address, port, ping_interval = None):
-        await asyncio.Future()
 
-if __name__ == "__main__":
-    asyncio.run(main())
+# async def main():
+#     async with websockets.serve(server, address, port, ping_interval = None):
+#         await asyncio.Future()
+
+# if __name__ == "__main__":
+#     SDB = search_database2.Search_database()
+#     asyncio.run(main())
 
 #上記のコードだとunityとの連携でうまく動かなかったので一応以下のやつで動作させます
-# SDB = search_database.Search_database()
-# start_server = websockets.serve(server, address, port)
-# asyncio.get_event_loop().run_until_complete(start_server)
-# asyncio.get_event_loop().run_forever()
+SDB = search_database2.Search_database()
+start_server = websockets.serve(server, address, port)
+asyncio.get_event_loop().run_until_complete(start_server)
+asyncio.get_event_loop().run_forever()
