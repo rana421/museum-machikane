@@ -7,9 +7,9 @@ import os,json
 # os.chdir(os.path.dirname(os.path.abspath(__file__))) #カレントディレクトリを固定
 
 # .envファイルから環境変数を読み込む
-from dotenv import load_dotenv
-dotenv_path = "../.env"
-load_dotenv(dotenv_path)
+# from dotenv import load_dotenv
+# dotenv_path = "../.env"
+# load_dotenv(dotenv_path)
 
 print(os.getcwd())
 

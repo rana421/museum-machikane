@@ -9,6 +9,7 @@ from module import pdf, print_pdf, audio_input, search_database
 import os
 os.chdir(os.path.dirname(os.path.abspath(__file__))) #カレントディレクトリを固定
 
+#pip uninstall dotenv-pythonをしましょう
 
 address = "0.0.0.0"
 port = 8001
@@ -79,6 +80,7 @@ async def server(websocket, path):
             pdf.create_PDF(user_input, museum_name, exhibition_name, exhibition_reason, url)
             # print_pdf.send_printer("./sample.pdf", "Brother MFC-L2750DW E302")
             # print_pdf.send_printer("./sample.pdf", "EW-M571T Series(ネットワーク)")
+            print_pdf.send_printer("./sample.pdf", "Brother MFC-L2750DW_kanemoto") #谷口：兼本研究室用
 
             print(">> PDF印刷処理中...")
             asyncio.wait(5)
