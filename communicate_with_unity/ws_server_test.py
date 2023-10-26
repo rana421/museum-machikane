@@ -11,7 +11,8 @@ import os
 os.chdir(os.path.dirname(os.path.abspath(__file__))) #カレントディレクトリを固定
 
 from PDFcreator.pdf_create import create_PDF
-from database.search_database import Search_database
+from database.search_database2 import Search_database
+#from database.search_database import Search_database
 from printer.print_pdf import send_printer
 from speech_recognition.audio_input import recognize_audio
 
@@ -94,9 +95,10 @@ async def server(websocket, path):
             # send_printer("./sample.pdf", "Brother MFC-L2750DW E302")
             # send_printer("./sample.pdf", "EW-M571T Series(ネットワーク)")
             # send_printer("./sample.pdf", "Brother MFC-L2750DW_kanemoto") #谷口：兼本研究室用
+            send_printer("./sample.pdf", "EPSONA42686 (EP-883A Series)") #谷口：自宅用
 
             print(">> PDF印刷処理中...")
-            asyncio.wait(5)
+            asyncio.wait(15) #ここは事前準備によって変えよう！
 
             # PRINT FINISHを送信
             FINISH_DICT = {"TYPE" : "PRINT_FINISH"}
@@ -121,3 +123,8 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
+
+#websockets.exceptions.ConnectionClosedError: received 1005 (no status code [internal]); then sent 1005 (no status code [internal])
+#  というエラーがUnityからのCloseときに出力されます。動作はするのですが見苦しいのでexcept:websockets.exceptions.ConnectionClosedErrorとして入れたいのですが
+#どこにいれるべきなのかわかりません！

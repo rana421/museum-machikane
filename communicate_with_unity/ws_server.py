@@ -66,7 +66,7 @@ async def server(websocket, path):
             # packet = json.dumps(CLOSE_DICT, ensure_ascii=False).encode('utf-8')
             # await websocket.send(packet)
 
-    finally:
+    finally:        
             await websocket.close()  # 必ず接続を閉じる
 
 
