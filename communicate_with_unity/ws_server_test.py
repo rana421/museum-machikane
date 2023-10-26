@@ -38,9 +38,12 @@ async def server(websocket, path):
             print(">> 音声ファイルを受信しました\n")
             print(">> 音声認識中...\n")
             audio_output = "./audio/tmp.wav"
-            with wave.open(audio_output, "wb") as ww:
-                ww.setparams(audio_params)
-                ww.writeframes(msg)
+            # with wave.open(audio_output, "wb") as ww:
+            #     ww.setparams(audio_params)
+            #     ww.writeframes(msg)
+
+            with open(audio_output, 'wb') as file:
+                file.write(msg)
 
             user_input = recognize_audio("./audio/tmp.wav")
             print(">> 音声入力の終了\n")
@@ -49,6 +52,7 @@ async def server(websocket, path):
             audio_dict = {"TYPE": "AUDIO" ,"user_input": user_input}
             audio_packet = json.dumps(audio_dict, ensure_ascii=False).encode('utf-8')
             await websocket.send(audio_packet)
+            continue
 
         if receive_msg["TYPE"] == "AUDIO_PARAMS":
             # audio ファイルのパラメータを受信

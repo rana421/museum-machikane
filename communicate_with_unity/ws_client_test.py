@@ -47,15 +47,20 @@ async def amain():
             print(">> 音声入力の開始\n")
             print(">> 音声の認識中...\n")
 
-            with wave.open(audio_file, "rb") as wr:
-                # data information
-                params = wr.getparams()
-                binary_data = wr.readframes(wr.getnframes())
+            # with wave.open(audio_file, "rb") as wr:
+            #     # data information
+            #     params = wr.getparams()
+            #     print(params)
+            #     binary_data = wr.readframes(wr.getnframes())
 
 
-            audio_dict = {"TYPE": "AUDIO_PARAMS", "PARAMS": params._asdict(),  '_is_kansai_only': is_kansai_only}
-            audio_packet = json.dumps(audio_dict).encode()
-            await websocket.send(audio_packet)
+            with open(audio_file, 'rb') as file:
+                # ファイルの内容を読み込む
+                binary_data = file.read()
+
+            # audio_dict = {"TYPE": "AUDIO_PARAMS", "PARAMS": params._asdict(),  '_is_kansai_only': is_kansai_only}
+            # audio_packet = json.dumps(audio_dict).encode()
+            # await websocket.send(audio_packet)
             await websocket.send(binary_data)
 
         elif input_type == "text":
