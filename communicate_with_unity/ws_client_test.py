@@ -64,7 +64,7 @@ async def amain():
             user_input = input("Input: ")
             # user_input = "浮世絵に興味があります！"
 
-            input_dict = {"TYPE": "USER_INPUT", "input": user_input, '_is_kansai_only': is_kansai_only}
+            input_dict = {"TYPE": "USER_INPUT", "user_input": user_input, '_is_kansai_only': is_kansai_only}
             input_packet = json.dumps(input_dict).encode()
             await websocket.send(input_packet)
 
@@ -73,12 +73,12 @@ async def amain():
             receive_msg = json.loads(msg.decode())
 
             if receive_msg["TYPE"] == "AUDIO":
-                user_input = receive_msg["input"]
+                user_input = receive_msg["user_input"]
 
                 print(">> 音声入力の終了")
                 print(">> 入力された内容：", user_input)
 
-                dictionary = {"TYPE": "USER_INPUT", "input": user_input, '_is_kansai_only': is_kansai_only}
+                dictionary = {"TYPE": "USER_INPUT", "user_input": user_input, '_is_kansai_only': is_kansai_only}
                 packet = json.dumps(dictionary).encode()
                 await websocket.send(packet)
                 print("\n\n>> 検索しています...")

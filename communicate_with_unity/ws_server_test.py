@@ -4,10 +4,19 @@ import asyncio
 import websockets
 import json
 import wave
-from module import pdf, print_pdf, audio_input, search_database
 
+import sys
+sys.path.append("./../")
 import os
 os.chdir(os.path.dirname(os.path.abspath(__file__))) #カレントディレクトリを固定
+
+from PDFcreator.pdf_create import create_PDF
+from database.search_database import Search_database
+from printer.print_pdf import send_printer
+from speech_recognition.audio_input import recognize_audio
+
+
+
 
 #pip uninstall dotenv-pythonをしましょう
 
@@ -15,7 +24,7 @@ address = "0.0.0.0"
 port = 8001
 timeout = 60 * 5
 
-SDB = search_database.Search_database()
+SDB = Search_database()
 
 # 受信コールバック
 async def server(websocket, path):
@@ -33,7 +42,7 @@ async def server(websocket, path):
                 ww.setparams(audio_params)
                 ww.writeframes(msg)
 
-            user_input = audio_input.recognize_audio("./audio/tmp.wav")
+            user_input = recognize_audio("./audio/tmp.wav")
             print(">> 音声入力の終了\n")
             print(">> 入力された内容：", user_input, "\n\n")
 
@@ -77,10 +86,10 @@ async def server(websocket, path):
         elif receive_msg["TYPE"] == "PRINT_START":
             print(">> PDFを作成し印刷を開始します\n")
             # PDFを印刷
-            pdf.create_PDF(user_input, museum_name, exhibition_name, exhibition_reason, url)
-            # print_pdf.send_printer("./sample.pdf", "Brother MFC-L2750DW E302")
-            # print_pdf.send_printer("./sample.pdf", "EW-M571T Series(ネットワーク)")
-            print_pdf.send_printer("./sample.pdf", "Brother MFC-L2750DW_kanemoto") #谷口：兼本研究室用
+            create_PDF(user_input, museum_name, exhibition_name, exhibition_reason, url, is_kansai_only)
+            # send_printer("./sample.pdf", "Brother MFC-L2750DW E302")
+            # send_printer("./sample.pdf", "EW-M571T Series(ネットワーク)")
+            # send_printer("./sample.pdf", "Brother MFC-L2750DW_kanemoto") #谷口：兼本研究室用
 
             print(">> PDF印刷処理中...")
             asyncio.wait(5)
