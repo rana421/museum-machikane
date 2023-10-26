@@ -4,12 +4,12 @@
 import openai
 from openai.embeddings_utils import cosine_similarity
 import os,json
-os.chdir(os.path.dirname(os.path.abspath(__file__))) #カレントディレクトリを固定
+# os.chdir(os.path.dirname(os.path.abspath(__file__))) #カレントディレクトリを固定
 
 # .envファイルから環境変数を読み込む
-# from dotenv import load_dotenv
-# dotenv_path = '../.env'
-# load_dotenv(dotenv_path)
+from dotenv import load_dotenv
+dotenv_path = '../.env'
+load_dotenv(dotenv_path)
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 openai.api_key = OPENAI_API_KEY
@@ -19,18 +19,16 @@ class Search_database():
 
     def __init__(self):
 
-        #self.model = "gpt-3.5-turbo"
-        self.model = "gpt-4"
+        self.model = "gpt-3.5-turbo"
+        # self.model = "gpt-4"
 
-
-        # データベースの読み込み
-        self.INDEX = None
-        self.QUERY = None
-        self.user_input = None
         self.exhibition_count = 5
 
-        with open('../../database/embedding.json') as f:
-            self.INDEX = json.load(f)
+        # データベースの読み込み
+        with open('../database/embedding_all.json') as f:
+            self.embedding_all = json.load(f)
+        with open('../database/embedding_kansai.json') as f:
+            self.embedding_kansai = json.load(f)
 
         self.init_role_describe = """
         あなたは大阪大学ミュージアム同好会というサークルに所属している優秀なアシスタントAIです。名前は「ミュージアム同好会bot」です。
@@ -69,22 +67,27 @@ class Search_database():
         )
 
         # これが検索用の文字列
-        QUERY  = response.choices[0]["message"]["content"].strip()
-        self.QUERY = QUERY
-        splited_query = QUERY.split(",")
+        query  = response.choices[0]["message"]["content"].strip()
+        self.query = query
+        splited_query = query.split(",")
         print("Query :", splited_query, end="\n\n")
         return splited_query
 
 
-    def make_output(self):
+    def make_output(self, is_kansai_only=False):
 
         # 検索用の文字列をベクトル化
         query = openai.Embedding.create(
             model='text-embedding-ada-002',
-            input=self.QUERY
+            input=self.query
         )
 
         query = query['data'][0]['embedding']
+
+        if not is_kansai_only:
+            embedding = self.embedding_all
+        else:
+            embedding = self.embedding_kansai
 
         # 総当りで類似度を計算
         results = map(
@@ -96,7 +99,7 @@ class Search_database():
                 # ここでクエリと各文章のコサイン類似度を計算
                 'similarity': cosine_similarity(i['embedding'], query)
                 },
-            self.INDEX
+            embedding
         )
         # コサイン類似度で降順（大きい順）にソート
         results = sorted(results, key=lambda i: i['similarity'], reverse=True)
@@ -132,7 +135,7 @@ class Search_database():
         出力はJSON形式で行ってください。
         """.replace("    ", "").strip()
 
-        
+
 
 
         print("\n\n>> 類似度の高い展示を元に返答を作成中...\n")
@@ -141,7 +144,7 @@ class Search_database():
             {"role": "system", "content": self.init_role_describe},
             {"role": "system", "content": suggest_output_system},
             {"role": "user", "content": self.message},
-            {"role":"assistant","content": self.QUERY},
+            {"role":"assistant","content": self.query},
             {"role": "user", "content": second_msg}
         ]
 
@@ -184,7 +187,7 @@ class Search_database():
             {"role": "system", "content": self.init_role_describe},
             {"role": "system", "content": final_output_system },
             {"role": "user", "content": self.message},
-            {"role":"assistant","content": self.QUERY},
+            {"role":"assistant","content": self.query},
             {"role": "user", "content": third_msg}
         ]
 
@@ -203,7 +206,7 @@ class Search_database():
             print(">> 展示理由のJSON形式での出力に失敗しました。")
             print(">> 再試行します。")
             return self.make_output()
-        
+
 
         exhibition_reason = dictionary["exhibition_reason"]
 
@@ -216,4 +219,4 @@ class Search_database():
 if __name__ == "__main__":
     SDB  = Search_database()
     SDB.make_QUERY("夢女子")
-    SDB.make_output()
+    SDB.make_output(is_kansai_only=True)

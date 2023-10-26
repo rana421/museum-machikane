@@ -7,11 +7,9 @@ import os,json
 # os.chdir(os.path.dirname(os.path.abspath(__file__))) #カレントディレクトリを固定
 
 # .envファイルから環境変数を読み込む
-# from dotenv import load_dotenv
-# dotenv_path = "../.env"
-# load_dotenv(dotenv_path)
-
-print(os.getcwd())
+from dotenv import load_dotenv
+dotenv_path = "../.env"
+load_dotenv(dotenv_path)
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 openai.api_key = OPENAI_API_KEY
@@ -25,9 +23,9 @@ class Search_database():
         self.model = "gpt-4"
 
 
-        # データベースの読み込み
         self.exhibition_count = 5
 
+        # データベースの読み込み
         with open('../database/embedding_all.json') as f:
             self.embedding_all = json.load(f)
         with open('../database/embedding_kansai.json') as f:
