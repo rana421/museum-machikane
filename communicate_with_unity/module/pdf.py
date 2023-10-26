@@ -2,9 +2,9 @@ import qrcode
 import random, json
 
 from reportlab.lib.pagesizes import B5
-from reportlab.lib.units import cm
+from reportlab.lib.units import cm, inch
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, Flowable
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Flowable
 from reportlab.lib.colors import black
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.pdfbase import pdfmetrics
@@ -137,21 +137,31 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url):
             with open("./hit_count.json", "w") as f:
                 json.dump({"count": hit_count}, f)
 
+    left_margin = 0.75 * inch
+    right_margin = 0.75 * inch
+
+    doc = SimpleDocTemplate(
+        "sample.pdf",
+        pagesize=B5,
+        leftMargin=left_margin,
+        rightMargin=right_margin
+    )
 
     story = []
-    doc = SimpleDocTemplate("sample.pdf", pagesize=B5)
-
     story.append(Spacer(1, 40))
 
-    story.append(Paragraph("「"+user_input+"」", get_style(font_name, 20, 30)))
+
+    # user_input font_size=20 -> 15文字まで
+    # user_input font_size=15 -> 20文字まで
+    story.append(Paragraph("「"+user_input+"」", get_style(font_name, 15, 30)))
 
     story.append(Paragraph("と入力したあなたへのおすすめは...", get_style(font_name, 15, 15)))
 
     story.append(Spacer(1, 10))
 
-    story.append(LineDrawing(330, 2))
+    story.append(LineDrawing(5.16 * inch, 2))
     story.append(Spacer(1, 1))
-    story.append(LineDrawing(330, 2))
+    story.append(LineDrawing(5.16 * inch, 2))
 
     story.append(Spacer(1, 10))
 
@@ -163,9 +173,9 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url):
 
     story.append(Spacer(1, 10))
 
-    story.append(LineDrawing(330, 2))
+    story.append(LineDrawing(5.16 * inch, 2))
     story.append(Spacer(1, 1))
-    story.append(LineDrawing(330, 2))
+    story.append(LineDrawing(5.16 * inch, 2))
 
     story.append(Spacer(1, 20))
 
@@ -212,7 +222,7 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url):
 
 
 if __name__ == "__main__":
-    user_input = "浮世絵に興味がある"
+    user_input = "".join(["あ"] * 20)
     museum_name = "公益財団法人中野美術館"
     exhibition_name = "近代の日本画〈日本画展示室〉"
     chatgpt_response = "浮世絵に興味がおありとのことですが、近代の日本画展示室では富岡鉄斎や横山大観などの著名な日本画家の作品を展示しています。彼らの作品は 浮世絵とはまた異なる美しさや表現方法を持っており、日本の伝統に根ざした芸術の魅力を感じることができます。ぜひ、この展示をご覧いただき 、日本画の魅力に触れてみてください。展示は2023年9月10日から11月13日まで開催されています。お楽しみに！"

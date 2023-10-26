@@ -28,6 +28,6 @@ def send_printer(pdffile, printer_name):
 
 if __name__ == '__main__':
     pdffile = "./../PDFcreator/sample.pdf"
-    #printer_name = "Brother MFC-L2750DW E302"
-    printer_name = "Brother MFC-L2750DW_kanemoto" 
+    printer_name = "Brother MFC-L2750DW E302"
+    # printer_name = "Brother MFC-L2750DW_kanemoto" 
     send_printer(pdffile, printer_name)
