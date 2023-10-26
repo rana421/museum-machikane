@@ -128,3 +128,6 @@ if __name__ == "__main__":
 #websockets.exceptions.ConnectionClosedError: received 1005 (no status code [internal]); then sent 1005 (no status code [internal])
 #  というエラーがUnityからのCloseときに出力されます。動作はするのですが見苦しいのでexcept:websockets.exceptions.ConnectionClosedErrorとして入れたいのですが
 #どこにいれるべきなのかわかりません！
+
+#websockets.exceptions.ConnectionClosedError: sent 1009 (message too big); no close frame received
+#あまりにも長すぎるというエラーです・・・これはどうしたらいいんでしょうね
