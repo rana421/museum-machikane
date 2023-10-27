@@ -148,6 +148,8 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url, 
         story = []
         story.append(Spacer(1, 20))
 
+        if "おまかせ" in user_input:
+            user_input = "おまかせ"
         if is_kansai:
             story.append(Paragraph("「"+user_input+"」in 関西", get_style(font_name, 20*size_ration, 30*size_ration)))
         else:
