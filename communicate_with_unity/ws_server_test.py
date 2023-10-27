@@ -55,66 +55,73 @@ async def server(websocket, path):
             await websocket.send(audio_packet)
             continue
 
-        if receive_msg["TYPE"] == "AUDIO_PARAMS":
-            # audio ファイルのパラメータを受信
-            audio_params = wave._wave_params(*receive_msg["PARAMS"].values())
-            is_kansai_only = receive_msg["_is_kansai_only"]
 
-        elif receive_msg["TYPE"] == "USER_INPUT":
-            is_kansai_only = receive_msg["_is_kansai_only"]
+        try:
+            if receive_msg["TYPE"] == "AUDIO_PARAMS":
+                # audio ファイルのパラメータを受信
+                audio_params = wave._wave_params(*receive_msg["PARAMS"].values())
+                is_kansai_only = receive_msg["_is_kansai_only"]
 
-            user_input = receive_msg["user_input"]
-            user_input.replace('\u200b', ' ') #半角の文字コードを消している
-            user_input.replace('\u3000', ' ') #全角の文字コードを消している
-            query = SDB.make_QUERY(user_input=user_input)
-            # print_query = ",".join(query)
+            elif receive_msg["TYPE"] == "USER_INPUT":
+                is_kansai_only = receive_msg["_is_kansai_only"]
 
-            # Quryを送信
-            query_dict = {"TYPE": "QUERY", "QUERY": query}
-            packet = json.dumps(query_dict, ensure_ascii=False).encode('utf-8')
-            await websocket.send(packet)
+                user_input = receive_msg["user_input"]
+                user_input.replace('\u200b', ' ') #半角の文字コードを消している
+                user_input.replace('\u3000', ' ') #全角の文字コードを消している
+                query = SDB.make_QUERY(user_input=user_input)
+                # print_query = ",".join(query)
 
-            # 検索結果を送信
-            results = SDB.make_output(is_kansai_only=is_kansai_only)
-            _, prefecture, museum_name, exhibition_name, exhibition_reason, url = results
-            answer_dict = {
-                "TYPE" : "ANSWER",
-                "prefecture": prefecture,
-                "museum_name": museum_name,
-                "exhibition_name": exhibition_name,
-                "exhibition_reason": exhibition_reason
-            }
-            answer_packet = json.dumps(answer_dict, ensure_ascii=False).encode('utf-8')
-            await websocket.send(answer_packet)
+                # Quryを送信
+                query_dict = {"TYPE": "QUERY", "QUERY": query}
+                packet = json.dumps(query_dict, ensure_ascii=False).encode('utf-8')
+                await websocket.send(packet)
+
+                # 検索結果を送信
+                results = SDB.make_output(is_kansai_only=is_kansai_only)
+                _, prefecture, museum_name, exhibition_name, exhibition_reason, url = results
+                answer_dict = {
+                    "TYPE" : "ANSWER",
+                    "prefecture": prefecture,
+                    "museum_name": museum_name,
+                    "exhibition_name": exhibition_name,
+                    "exhibition_reason": exhibition_reason
+                }
+                answer_packet = json.dumps(answer_dict, ensure_ascii=False).encode('utf-8')
+                await websocket.send(answer_packet)
 
 
-        elif receive_msg["TYPE"] == "PRINT_START":
-            print(">> PDFを作成し印刷を開始します\n")
-            # PDFを印刷
-            create_PDF(user_input, museum_name, exhibition_name, exhibition_reason, url, is_kansai_only)
-            # send_printer("./sample.pdf", "Brother MFC-L2750DW E302")
-            # send_printer("./sample.pdf", "EW-M571T Series(ネットワーク)")
-            # send_printer("./sample.pdf", "Brother MFC-L2750DW_kanemoto") #谷口：兼本研究室用
-            send_printer("./sample.pdf", "EPSONA42686 (EP-883A Series)") #谷口：自宅用
+            elif receive_msg["TYPE"] == "PRINT_START":
+                print(">> PDFを作成し印刷を開始します\n")
+                # PDFを印刷
+                create_PDF(user_input, museum_name, exhibition_name, exhibition_reason, url, is_kansai_only)
+                # send_printer("./sample.pdf", "Brother MFC-L2750DW E302")
+                # send_printer("./sample.pdf", "EW-M571T Series(ネットワーク)")
+                # send_printer("./sample.pdf", "Brother MFC-L2750DW_kanemoto") #谷口：兼本研究室用
+                send_printer("./sample.pdf", "EPSONA42686 (EP-883A Series)") #谷口：自宅用
 
-            print(">> PDF印刷処理中...")
-            asyncio.wait(15) #ここは事前準備によって変えよう！
+                print(">> PDF印刷処理中...")
+                asyncio.wait(15) #ここは事前準備によって変えよう！
 
-            # PRINT FINISHを送信
-            FINISH_DICT = {"TYPE" : "PRINT_FINISH"}
-            packet = json.dumps(FINISH_DICT, ensure_ascii=False).encode('utf-8')
-            await websocket.send(packet)
+                # PRINT FINISHを送信
+                FINISH_DICT = {"TYPE" : "PRINT_FINISH"}
+                packet = json.dumps(FINISH_DICT, ensure_ascii=False).encode('utf-8')
+                await websocket.send(packet)
 
+                print(">> WEBSOCKET CLOSED\n")
+                await websocket.close()
+
+
+            # テスト用
+            elif receive_msg["TYPE"] == "COM_TEST":
+                TEST_DICT = {"TYPE": "COM_TEST" ,"RESPONSE":"Hello Unity From Python!" }
+                packet = json.dumps(TEST_DICT, ensure_ascii=False).encode('utf-8')
+                await websocket.send(packet)
+                print("sent a test message to unity")
+
+        except websockets.exceptions.ConnectionClosedError:
             print(">> WEBSOCKET CLOSED\n")
             await websocket.close()
-
-
-        # テスト用
-        elif receive_msg["TYPE"] == "COM_TEST":
-            TEST_DICT = {"TYPE": "COM_TEST" ,"RESPONSE":"Hello Unity From Python!" }
-            packet = json.dumps(TEST_DICT, ensure_ascii=False).encode('utf-8')
-            await websocket.send(packet)
-            print("sent a test message to unity")
+            continue
 
 
 async def main():
