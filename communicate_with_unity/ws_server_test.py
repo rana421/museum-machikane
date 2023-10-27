@@ -24,6 +24,7 @@ from speech_recognition.audio_input import recognize_audio
 address = "0.0.0.0"
 port = 8001
 timeout = 60 * 5
+audio_output = "./audio/tmp.wav"
 
 SDB = Search_database()
 
@@ -38,13 +39,17 @@ async def server(websocket, path):
             # 音声ファイルの場合の処理
             print(">> 音声ファイルを受信しました\n")
             print(">> 音声認識中...\n")
-            audio_output = "./audio/tmp.wav"
-            # with wave.open(audio_output, "wb") as ww:
-            #     ww.setparams(audio_params)
-            #     ww.writeframes(msg)
+            received_chunks = []
+            while msg:
+                received_chunks.append(msg)
+                msg = await websocket.recv()
 
-            with open(audio_output, 'wb') as file:
-                file.write(msg)
+            with open(audio_output, "wb") as f:
+                for data in received_chunks:
+                    f.write(data)
+
+            # with open(audio_output, 'wb') as file:
+            #     file.write(msg)
 
             user_input = recognize_audio("./audio/tmp.wav")
             print(">> 音声入力の終了\n")

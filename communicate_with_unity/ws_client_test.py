@@ -9,8 +9,8 @@ import wave
 
 uri = "ws://localhost:8001"
 timeout = 60 * 5
-
-audio_file = "./audio/test.wav"
+audio_file = "./audio/audio.wav"
+CHUNK_SIZE = 10240
 
 # input_type = "audio"
 #  _is_kansai_only = Trur
@@ -47,21 +47,23 @@ async def amain():
             print(">> 音声入力の開始\n")
             print(">> 音声の認識中...\n")
 
-            # with wave.open(audio_file, "rb") as wr:
-            #     # data information
-            #     params = wr.getparams()
-            #     print(params)
-            #     binary_data = wr.readframes(wr.getnframes())
-
 
             with open(audio_file, 'rb') as file:
                 # ファイルの内容を読み込む
                 binary_data = file.read()
 
-            # audio_dict = {"TYPE": "AUDIO_PARAMS", "PARAMS": params._asdict(),  '_is_kansai_only': is_kansai_only}
-            # audio_packet = json.dumps(audio_dict).encode()
-            # await websocket.send(audio_packet)
-            await websocket.send(binary_data)
+                total_chunks = len(binary_data) // CHUNK_SIZE + (1 if len(binary_data) % CHUNK_SIZE else 0)
+
+                for i in range(total_chunks):
+                    start = i * CHUNK_SIZE
+                    end = start + CHUNK_SIZE
+                    chunk_data = binary_data[start:end]
+                    await websocket.send(chunk_data)
+                # EOFのマーカーとして空のメッセージを送信
+                await websocket.send(b'')
+
+
+            # await websocket.send(binary_data)
 
         elif input_type == "text":
             print(">> キーボード入力の開始\n")
