@@ -20,11 +20,12 @@ from speech_recognition.audio_input import recognize_audio
 
 
 #pip uninstall dotenv-pythonをしましょう
+#macだと　lpstat -p　でプリンターを確認できます！
 
 address = "0.0.0.0"
 port = 8001
 timeout = 60 * 5
-do_print = False
+do_print = True
 
 
 
@@ -40,7 +41,7 @@ async def server(websocket, path):
     async for msg in websocket:
         # JSONとしての解析を試みる
         try:
-            receive_msg = json.loads(msg.decode())
+            receive_msg = json.loads(msg.decode('utf-8'))
             # print(f">> received message: {receive_msg}")
         except Exception:
             # 音声ファイルの場合の処理
@@ -112,8 +113,8 @@ async def server(websocket, path):
                     # send_printer("./sample.pdf", "Brother MFC-L2750DW E302")
                     # send_printer("./sample.pdf", "EW-M571T Series(ネットワーク)")
                     # send_printer("./sample.pdf", "Brother MFC-L2750DW_kanemoto") #谷口：兼本研究室用
-                    send_printer("./sample.pdf", "EPSONA42686 (EP-883A Series)") #谷口：自宅用
-
+                    #send_printer("./sample.pdf", "EPSONA42686 (EP-883A Series)") #谷口：自宅用
+                    send_printer("./sample.pdf", "EPSON_EP_883A_Series") #谷口：自宅用 mac用
                 print(">> PDF印刷処理中...")
                 await asyncio.sleep(15) #ここは事前準備によって変えよう！
 
