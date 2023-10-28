@@ -105,7 +105,7 @@ async def server(websocket, path):
                 send_printer("./sample.pdf", "EPSONA42686 (EP-883A Series)") #谷口：自宅用
 
                 print(">> PDF印刷処理中...")
-                asyncio.wait(15) #ここは事前準備によって変えよう！
+                await asyncio.wait(15) #ここは事前準備によって変えよう！
 
                 # PRINT FINISHを送信
                 FINISH_DICT = {"TYPE" : "PRINT_FINISH"}
@@ -143,3 +143,5 @@ if __name__ == "__main__":
 
 #websockets.exceptions.ConnectionClosedError: sent 1009 (message too big); no close frame received
 #あまりにも長すぎるというエラーです・・・これはどうしたらいいんでしょうね
+
+#「おまかせ」のときの文字の処理をする必要がある

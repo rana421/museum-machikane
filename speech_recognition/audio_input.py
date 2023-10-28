@@ -2,11 +2,11 @@
 import os
 import openai
 from os.path import join, dirname
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
-dotenv_path = '../.env'
+# dotenv_path = '../.env'
 
-load_dotenv(dotenv_path)
+# load_dotenv(dotenv_path)
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
