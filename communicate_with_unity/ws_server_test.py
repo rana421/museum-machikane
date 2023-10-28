@@ -4,7 +4,7 @@ import asyncio
 import websockets
 import json
 import wave
-
+from distutils.util import strtobool
 import sys
 sys.path.append("./../")
 import os
@@ -24,12 +24,19 @@ from speech_recognition.audio_input import recognize_audio
 address = "0.0.0.0"
 port = 8001
 timeout = 60 * 5
-audio_output = "./audio/tmp.wav"
+do_print = False
 
+
+
+
+audio_output = "./audio/tmp.wav"
+user_input  = ""
+is_kansai_only = True
 SDB = Search_database()
 
 # 受信コールバック
 async def server(websocket, path):
+    global user_input,is_kansai_only
     async for msg in websocket:
         # JSONとしての解析を試みる
         try:
@@ -68,11 +75,12 @@ async def server(websocket, path):
                 is_kansai_only = receive_msg["_is_kansai_only"]
 
             elif receive_msg["TYPE"] == "USER_INPUT":
-                is_kansai_only = receive_msg["_is_kansai_only"]
+                is_kansai_only = bool(strtobool(receive_msg["_is_kansai_only"])) #stringからboolへ変換
 
                 user_input = receive_msg["user_input"]
                 user_input.replace('\u200b', ' ') #半角の文字コードを消している
                 user_input.replace('\u3000', ' ') #全角の文字コードを消している
+                print(f"user_input: {user_input}  _is_kansi_only: {is_kansai_only}")
                 query = SDB.make_QUERY(user_input=user_input)
                 # print_query = ",".join(query)
 
@@ -99,13 +107,15 @@ async def server(websocket, path):
                 print(">> PDFを作成し印刷を開始します\n")
                 # PDFを印刷
                 create_PDF(user_input, museum_name, exhibition_name, exhibition_reason, url, is_kansai_only)
-                # send_printer("./sample.pdf", "Brother MFC-L2750DW E302")
-                # send_printer("./sample.pdf", "EW-M571T Series(ネットワーク)")
-                # send_printer("./sample.pdf", "Brother MFC-L2750DW_kanemoto") #谷口：兼本研究室用
-                send_printer("./sample.pdf", "EPSONA42686 (EP-883A Series)") #谷口：自宅用
+
+                if(do_print):
+                    # send_printer("./sample.pdf", "Brother MFC-L2750DW E302")
+                    # send_printer("./sample.pdf", "EW-M571T Series(ネットワーク)")
+                    # send_printer("./sample.pdf", "Brother MFC-L2750DW_kanemoto") #谷口：兼本研究室用
+                    send_printer("./sample.pdf", "EPSONA42686 (EP-883A Series)") #谷口：自宅用
 
                 print(">> PDF印刷処理中...")
-                await asyncio.wait(15) #ここは事前準備によって変えよう！
+                await asyncio.sleep(15) #ここは事前準備によって変えよう！
 
                 # PRINT FINISHを送信
                 FINISH_DICT = {"TYPE" : "PRINT_FINISH"}
@@ -113,7 +123,7 @@ async def server(websocket, path):
                 await websocket.send(packet)
 
                 print(">> WEBSOCKET CLOSED\n")
-                await websocket.close()
+                #await websocket.close()
 
 
             # テスト用

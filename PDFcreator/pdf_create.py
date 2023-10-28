@@ -44,6 +44,7 @@ text_height_point = B5[1]-inch-inch
 pdfmetrics.registerFont(TTFont(font_name, font_path))
 pdfmetrics.registerFont(TTFont(font_mintyou_name, font_mintyou_path))
 
+global_user_input = "" #globalにこれがないと動かなかった
 
 class LineDrawing(Flowable):
     """線を描画するためのFlowableクラス"""
@@ -70,6 +71,8 @@ def get_style(font_name, font_size, leading, alignment=TA_CENTER):
     )
 
 def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url, is_kansai):
+    global global_user_input
+    global_user_input = user_input
     def background_image(canvas, doc):
         img_width, img_height = 100, 100
         # translateとrotateの関係で、左上、左下、右上、右下の順に画像を配置する
@@ -148,7 +151,10 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url, 
         story = []
         story.append(Spacer(1, 20))
 
-        if "おまかせ" in user_input:
+        global global_user_input
+        user_input =global_user_input
+        
+        if user_input== "おまかせでお願いします。なにか面白い展示を教えてください。":
             user_input = "おまかせ"
         if is_kansai:
             story.append(Paragraph("「"+user_input+"」in 関西", get_style(font_name, 20*size_ration, 30*size_ration)))
