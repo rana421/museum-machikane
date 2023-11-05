@@ -114,7 +114,11 @@ async def server(websocket, path):
                     # send_printer("./sample.pdf", "EW-M571T Series(ネットワーク)")
                     # send_printer("./sample.pdf", "Brother MFC-L2750DW_kanemoto") #谷口：兼本研究室用
                     #send_printer("./sample.pdf", "EPSONA42686 (EP-883A Series)") #谷口：自宅用
-                    send_printer("./sample.pdf", "EPSON_EP_883A_Series") #谷口：自宅用 mac用
+                    # send_printer("./sample.pdf", "EPSON_EP_883A_Series") #谷口：自宅用 mac用
+                    #send_printer("./sample.pdf","Brother_MFC_L2750DW_series__b42200a0521e_") #谷口　金本研究室　mac用
+                    send_printer("./sample.pdf","EPSON_EW_M630T_Series")
+                    # send_printer("./sample.pdf","EPSON_EW_M973A3T_Series_2")
+                    
                 print(">> PDF印刷処理中...")
                 await asyncio.sleep(15) #ここは事前準備によって変えよう！
 

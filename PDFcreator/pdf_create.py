@@ -13,13 +13,13 @@ from reportlab.pdfbase.ttfonts import TTFont
 # まちかね祭全体であたり10個
 # 一日の上限をもけるとしたら、3個・3個・4個とか
 # MAX_HIT_COUNT = 3, PROBABILITY = 0.1
-MAX_HIT_COUNT = 3
-PROBABILITY = 0.5
+MAX_HIT_COUNT = 10
+PROBABILITY = 0.1
 
 url_path = "./image/qr.png"
 backgpund_path = "./image/material_201006_01_white.png"
 backgpund_rote_path = "./image/material_201006_01_white_rotate.png"
-logo_path = "./image/logo.png"
+logo_path = "./image/ミュージアム同好会_ロゴ2.png"
 sealing_path = "./image/sealing.png"
 hit_path = "./image/hit.png"
 
@@ -33,7 +33,7 @@ x_qr_path = "./image/qr_x.png"
 instagram_qr_path = "./image/qr_insta.png"
 
 
-# B5でのデフォルトの余白は1 inch
+# A4でのデフォルトの余白は1 inch
 left_margin = 0.75 * inch
 right_margin = 0.75 * inch
 
