@@ -1,5 +1,4 @@
 import os
-print(os.name)
 import subprocess
 
 #os.chdir(os.path.dirname(os.path.abspath(__file__))) #カレントディレクトリを固定
@@ -49,7 +48,6 @@ if __name__ == '__main__':
     pdffile = "./PDFcreator/sample.pdf"
     #printer_name = "Brother MFC-L2750DW E302"
     # printer_name = "EPSON_EP_883A_Series"
-    
     printer_name = "Brother_MFC_L2750DW_series__b42200a0521e_"
-    # printer_name = "Brother MFC-L2750DW_kanemoto" 
+    # printer_name = "Brother MFC-L2750DW_kanemoto"
     send_printer(pdffile, printer_name)

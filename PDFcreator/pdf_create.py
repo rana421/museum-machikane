@@ -16,21 +16,22 @@ from reportlab.pdfbase.ttfonts import TTFont
 MAX_HIT_COUNT = 10
 PROBABILITY = 0.1
 
-url_path = "./image/qr.png"
-backgpund_path = "./image/material_201006_01_white.png"
-backgpund_rote_path = "./image/material_201006_01_white_rotate.png"
-logo_path = "./image/ミュージアム同好会_ロゴ2.png"
-sealing_path = "./image/sealing.png"
-hit_path = "./image/hit.png"
+
+url_path = "../image/qr.png"
+backgpund_path = "../image/material_201006_01_white.png"
+backgpund_rote_path = "../image/material_201006_01_white_rotate.png"
+logo_path = "../image/ミュージアム同好会_ロゴ2.png"
+sealing_path = "../image/sealing.png"
+hit_path = "../image/hit.png"
 
 font_name = "genshingothic"
-font_path = "./font/genshingothic-20150607/GenShinGothic-Normal.ttf"
+font_path = "../font/genshingothic-20150607/GenShinGothic-Normal.ttf"
 
 font_mintyou_name = "BIZ_UDMincho-Regular"
-font_mintyou_path = "./font/BIZ_UDMincho/BIZUDMincho-Regular.ttf"
+font_mintyou_path = "../font/BIZ_UDMincho/BIZUDMincho-Regular.ttf"
 
-x_qr_path = "./image/qr_x.png"
-instagram_qr_path = "./image/qr_insta.png"
+x_qr_path = "../image/qr_x.png"
+instagram_qr_path = "../image/qr_insta.png"
 
 
 # A4でのデフォルトの余白は1 inch

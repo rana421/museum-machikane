@@ -1,85 +1,123 @@
-#https://tech.morikatron.ai/entry/2020/07/20/100000
-#上記のサイトを参考にしました。
 import asyncio
 import websockets
 import json
-from module import pdf, print_pdf,search_database2
+from distutils.util import strtobool
+import sys
+sys.path.append("./../")
+
+import os
+os.chdir(os.path.dirname(os.path.abspath(__file__))) #カレントディレクトリを固定
+
+from PDFcreator.pdf_create import create_PDF
+from database.search_database2 import Search_database
+#from database.search_database import Search_database
+from printer.print_pdf import send_printer
+from speech2text.audio_input import recognize_audio
 
 address = "0.0.0.0"
 port = 8001
 timeout = 60 * 5
+do_print = True
 
-printer_name = "Brother MFC-L2750DW_kanemoto"
-printer_on  = False #プリントするかどうか、テスト用
+audio_output = "./audio/tmp.wav"
+user_input  = ""
+is_kansai_only = True
+SDB = Search_database()
 
 # 受信コールバック
 async def server(websocket, path):
-    try:
-        # 受信
-        #received_packet = await asyncio.wait_for(websocket.recv(), timeout=timeout)
-        received_packet = await websocket.recv()
-        receive_msg = json.loads(received_packet.decode())
+    global user_input,is_kansai_only
+    async for msg in websocket:
+        # JSONとしての解析を試みる
+        try:
+            receive_msg = json.loads(msg.decode('utf-8'))
+        except Exception:
+            # 音声ファイルの場合の処理
+            print(">> 音声ファイルを受信しました\n")
+            print(">> 音声認識中...\n")
+            received_chunks = []
+            while msg:
+                received_chunks.append(msg)
+                msg = await websocket.recv()
 
-        print(f">> received message: {receive_msg}")
-        #>> received message: {'TYPE': 'USER_INPUT', 'user_input': 'スラムダンクが好きです', '_is_kansai_only': 'False'}という形で帰ってきます
+            with open(audio_output, "wb") as f:
+                for data in received_chunks:
+                    f.write(data)
 
-        #ここから送信処理
-        if receive_msg["TYPE"] == "USER_INPUT":
-            # 送信
-            user_input = receive_msg["user_input"]
-            user_input.replace('\u200b', ' ') #半角の文字コードを消している
-            user_input.replace('\u3000', ' ') #全角の文字コードを消している
-            QUERY = SDB.make_QUERY(user_input=user_input)
-            # print_query = ""
-            # for query in QUERY:
-            #     print_query += query +","
-            # Quryを送信kl.j
-            QUERY_DICT = {"TYPE": "QUERY" ,"QUERY":QUERY }
-            packet = json.dumps(QUERY_DICT, ensure_ascii=False).encode('utf-8')
-            await websocket.send(packet)
+            user_input = recognize_audio("./audio/tmp.wav")
+            print(">> 音声入力の終了\n")
+            print(">> 入力された内容：", user_input, "\n\n")
+
+            audio_dict = {"TYPE": "AUDIO" ,"user_input": user_input}
+            audio_packet = json.dumps(audio_dict, ensure_ascii=False).encode('utf-8')
+            await websocket.send(audio_packet)
+            continue
+
+        try:
+            if receive_msg["TYPE"] == "USER_INPUT":
+                is_kansai_only = bool(strtobool(str(receive_msg["_is_kansai_only"]))) #stringからboolへ変換
+
+                user_input = receive_msg["user_input"]
+                user_input.replace('\u200b', ' ') #半角の文字コードを消している
+                user_input.replace('\u3000', ' ') #全角の文字コードを消している
+                print(f"user_input: {user_input}  _is_kansi_only: {is_kansai_only}")
+                query = SDB.make_QUERY(user_input=user_input)
+
+                # Quryを送信
+                query_dict = {"TYPE": "QUERY", "QUERY": query}
+                packet = json.dumps(query_dict, ensure_ascii=False).encode('utf-8')
+                await websocket.send(packet)
 
                 # 検索結果を送信
-            index_num, prefecture, museum_name, exhibition_name, exhibition_reason, url = SDB.make_output()
-            ANS_DICT = {"TYPE" : "ANSWER", "prefecture": prefecture, "museum_name": museum_name, "exhibition_name": exhibition_name, "exhibition_reason": exhibition_reason}
-            packet = json.dumps(ANS_DICT, ensure_ascii=False).encode('utf-8')
-            await websocket.send(packet)
-
-            
-            # PDFを作成
-            # pdf.create_PDF(museum_name, exhibition_name, exhibition_reason, url)
-            # if printer_on:
-            #     #pdfを印刷
-            #     print_pdf.send_printer("./sample.pdf", printer_name )
-            #     # print_pdf.send_printer("./sample.pdf", "EW-M571T Series(ネットワーク)")
-            # PRINT_DICT = {"TYPE" : "PRINT"}
-            # packet = json.dumps(PRINT_DICT, ensure_ascii=False).encode('utf-8')
-            # await websocket.send(packet)
-
-        elif receive_msg["TYPE"] == "COM_TEST":
-            TEST_DICT = {"TYPE": "COM_TEST" ,"RESPONSE":"Hello Unity From Python!" }
-            packet = json.dumps(TEST_DICT, ensure_ascii=False).encode('utf-8')
-            await websocket.send(packet)
-            print("sent a test message to unity")
-            # CLOSEを送信
-            # await asyncio.sleep(5)
-            # CLOSE_DICT = {"TYPE" : "CLOSE"}
-            # packet = json.dumps(CLOSE_DICT, ensure_ascii=False).encode('utf-8')
-            # await websocket.send(packet)
-
-    finally:        
-            await websocket.close()  # 必ず接続を閉じる
+                results = SDB.make_output(is_kansai_only=is_kansai_only)
+                _, prefecture, museum_name, exhibition_name, exhibition_reason, url = results
+                answer_dict = {
+                    "TYPE" : "ANSWER",
+                    "prefecture": prefecture,
+                    "museum_name": museum_name,
+                    "exhibition_name": exhibition_name,
+                    "exhibition_reason": exhibition_reason
+                }
+                answer_packet = json.dumps(answer_dict, ensure_ascii=False).encode('utf-8')
+                await websocket.send(answer_packet)
 
 
-# async def main():
-#     async with websockets.serve(server, address, port, ping_interval = None):
-#         await asyncio.Future()
+            elif receive_msg["TYPE"] == "PRINT_START":
+                print(">> PDFを作成し印刷を開始します\n")
+                # PDFを印刷
+                create_PDF(user_input, museum_name, exhibition_name, exhibition_reason, url, is_kansai_only)
 
-# if __name__ == "__main__":
-#     SDB = search_database2.Search_database()
-#     asyncio.run(main())
+                if(do_print):
+                    send_printer("./sample.pdf","EPSON_EW_M630T_Series")
 
-#上記のコードだとunityとの連携でうまく動かなかったので一応以下のやつで動作させます
-SDB = search_database2.Search_database()
-start_server = websockets.serve(server, address, port)
-asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().run_forever()
+                print(">> PDF印刷処理中...")
+                await asyncio.sleep(15) #ここは事前準備によって変えよう！
+
+                # PRINT FINISHを送信
+                FINISH_DICT = {"TYPE" : "PRINT_FINISH"}
+                packet = json.dumps(FINISH_DICT, ensure_ascii=False).encode('utf-8')
+                await websocket.send(packet)
+
+                print(">> WEBSOCKET CLOSED\n")
+                #await websocket.close()
+
+
+            # テスト用
+            elif receive_msg["TYPE"] == "COM_TEST":
+                TEST_DICT = {"TYPE": "COM_TEST" ,"RESPONSE":"Hello Unity From Python!" }
+                packet = json.dumps(TEST_DICT, ensure_ascii=False).encode('utf-8')
+                await websocket.send(packet)
+                print("sent a test message to unity")
+
+        except websockets.exceptions.ConnectionClosedError:
+            print(">> WEBSOCKET CLOSED\n")
+            await websocket.close()
+            continue
+
+
+async def main():
+    async with websockets.serve(server, address, port, ping_interval = None):
+        await asyncio.Future()
+
+if __name__ == "__main__":
+    asyncio.run(main())
