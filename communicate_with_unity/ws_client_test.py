@@ -7,7 +7,7 @@ import json
 import wave
 # TODO: ChatGPTの出力の時間を計測する
 
-uri = "ws://localhost:8001"
+uri = "ws://0.0.0.0:8001"
 timeout = 60 * 5
 audio_file = "./audio/audio.wav"
 CHUNK_SIZE = 10240
@@ -26,9 +26,9 @@ async def amain():
         print(">> 2: 関西の展示を検索")
         is_kansai_input = input("Input: ")
         if is_kansai_input == "1":
-            is_kansai_only = False
+            is_kansai_only = "False"
         elif is_kansai_input == "2":
-            is_kansai_only = True
+            is_kansai_only = "True"
         else:
             print(">> 1か2を入力してください")
             return
@@ -101,6 +101,7 @@ async def amain():
                 print("「"+receive_msg["museum_name"] + "  "+receive_msg["exhibition_name"] +"」")
                 print("\n--------同好会botからの一言--------")
                 print(receive_msg["exhibition_reason"], end="\n\n")
+                print(f'urlはこちら: {receive_msg["result_url"]}')
 
                 # print命令を送信
                 print(">> 結果をPDFで印刷します\n")

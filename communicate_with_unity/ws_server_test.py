@@ -6,18 +6,20 @@ import json
 import wave
 from distutils.util import strtobool
 import sys
+import qrcode
 sys.path.append("./../")
 import os
 os.chdir(os.path.dirname(os.path.abspath(__file__))) #カレントディレクトリを固定
 
 from PDFcreator.pdf_create import create_PDF
+# import PDFcreator.flask_pdf #2024追記　これによりflaskサーバを起動させる
 from database.search_database2 import Search_database
 #from database.search_database import Search_database
 from printer.print_pdf import send_printer
 from speech_recognition.audio_input import recognize_audio
 
-
-
+import sys
+sys.path.append('../PDFcreator/flask_pdf')
 
 #pip uninstall dotenv-pythonをしましょう
 #macだと　lpstat -p　でプリンターを確認できます！
@@ -93,12 +95,27 @@ async def server(websocket, path):
                 # 検索結果を送信
                 results = SDB.make_output(is_kansai_only=is_kansai_only)
                 _, prefecture, museum_name, exhibition_name, exhibition_reason, url = results
+
+                #2024追記 pdfからqrコードを作成する
+                pdf_doc_name = create_PDF(user_input, museum_name, exhibition_name, exhibition_reason, url, is_kansai_only)
+                result_url = f"http://0.0.0.0/pdf/{pdf_doc_name}"
+                print(f"url: {result_url}")
+                # QRコードの設定
+                # qr = qrcode.QRCode(
+                #     version=2,  # QRコードのバージョン(1~40)
+                #     error_correction=qrcode.constants.ERROR_CORRECT_H  # 誤り訂正レベル
+                # )
+                # qr.add_data(result_url)
+                # qr.make()
+                # img = qr.make_image()
+                # img.save("result_qrcode.png")
                 answer_dict = {
                     "TYPE" : "ANSWER",
                     "prefecture": prefecture,
                     "museum_name": museum_name,
                     "exhibition_name": exhibition_name,
-                    "exhibition_reason": exhibition_reason
+                    "exhibition_reason": exhibition_reason,
+                    "result_url": result_url
                 }
                 answer_packet = json.dumps(answer_dict, ensure_ascii=False).encode('utf-8')
                 await websocket.send(answer_packet)
@@ -107,8 +124,7 @@ async def server(websocket, path):
             elif receive_msg["TYPE"] == "PRINT_START":
                 print(">> PDFを作成し印刷を開始します\n")
                 # PDFを印刷
-                create_PDF(user_input, museum_name, exhibition_name, exhibition_reason, url, is_kansai_only)
-
+                
                 if(do_print):
                     # send_printer("./sample.pdf", "Brother MFC-L2750DW E302")
                     # send_printer("./sample.pdf", "EW-M571T Series(ネットワーク)")
@@ -116,7 +132,8 @@ async def server(websocket, path):
                     #send_printer("./sample.pdf", "EPSONA42686 (EP-883A Series)") #谷口：自宅用
                     # send_printer("./sample.pdf", "EPSON_EP_883A_Series") #谷口：自宅用 mac用
                     #send_printer("./sample.pdf","Brother_MFC_L2750DW_series__b42200a0521e_") #谷口　金本研究室　mac用
-                    send_printer("./sample.pdf","EPSON_EW_M630T_Series")
+                    #send_printer("./sample.pdf","EPSON_EW_M630T_Series")
+                    send_printer("./sample.pdf","EPSON_EW_M973A3T_Series")
                     # send_printer("./sample.pdf","EPSON_EW_M973A3T_Series_2")
                     
                 print(">> PDF印刷処理中...")

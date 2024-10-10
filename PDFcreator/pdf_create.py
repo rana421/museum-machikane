@@ -1,14 +1,18 @@
 import qrcode
 import random, json
-
+import time
 from reportlab.lib.pagesizes import B5
 from reportlab.lib.units import cm, inch
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Flowable
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Flowable,Table
 from reportlab.lib.colors import black
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.lib.utils import ImageReader
+
+import sys
+sys.path.append('../PDFcreator')
 
 # まちかね祭全体であたり10個
 # 一日の上限をもけるとしたら、3個・3個・4個とか
@@ -60,6 +64,25 @@ class LineDrawing(Flowable):
         self.canv.setLineWidth(1)
         self.canv.line(0, 0, self.width, 0)
 
+from reportlab.platypus import Flowable
+
+class ClickableImage(Flowable):
+    """Clickable Image Flowable"""
+
+    def __init__(self, image_path, url, width, height):
+        super().__init__()
+        self.image_path = image_path
+        self.url = url
+        self.width = width
+        self.height = height
+        self.hAlign = 'CENTER'  # アライメントを中央に設定
+        # print(f"{self.height=}")
+    def draw(self):
+        # 画像を(0,0)に描画
+        self.canv.drawImage(self.image_path, 0, 0, width=self.width, height=self.height)
+        # 画像と同じ領域にリンクを設定
+        self.canv.linkURL(self.url, (0, 0, self.width, self.height), relative=1)
+
 
 def get_style(font_name, font_size, leading, alignment=TA_CENTER):
     return ParagraphStyle(
@@ -105,7 +128,6 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url, 
         canvas.drawImage(backgpund_path, 0, 0, width=img_width, height=img_height)
         canvas.restoreState()
 
-
         # logoの配置
         # どこに配置するかは考える必要がある
         canvas.saveState()
@@ -113,15 +135,21 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url, 
         canvas.drawImage(logo_path, (B5[0]-58.26*3) // 2, 10, width=58.26*3, height=28.74*3)
         canvas.restoreState()
 
-
         # SNSのQRコードの配置
         sns_qr_size = 60
         x_init = 70
         center_x = B5[0] // 2 - sns_qr_size - x_init
-        canvas.drawImage(x_qr_path, x_init, 20, width=sns_qr_size, height=sns_qr_size)
-        print(x_init+sns_qr_size+center_x*2)
-        canvas.drawImage(instagram_qr_path, x_init+sns_qr_size+center_x*2, 20, width=sns_qr_size, height=sns_qr_size)
+        # Twitter QRコードを描画し、そのリンクを設定
+        twitter_qr_x = x_init
+        twitter_qr_y = 20
+        canvas.drawImage(x_qr_path, x_init, 20, width=sns_qr_size, height=sns_qr_size) #Xを描写
+        canvas.linkURL("https://x.com/HA_Museumclub", (twitter_qr_x, twitter_qr_y, twitter_qr_x + sns_qr_size, twitter_qr_y + sns_qr_size))
 
+        print(x_init+sns_qr_size+center_x*2)
+        canvas.drawImage(instagram_qr_path, x_init+sns_qr_size+center_x*2, 20, width=sns_qr_size, height=sns_qr_size) #Instagramを描写
+        instagram_qr_x = x_init + sns_qr_size + center_x * 2
+        instagram_qr_y = 20
+        canvas.linkURL("https://www.instagram.com/handai_museumclub/", (instagram_qr_x, instagram_qr_y, instagram_qr_x + sns_qr_size, instagram_qr_y + sns_qr_size))
 
         with open("./hit_count.json", "r") as f:
             hit_count = json.load(f)["count"]
@@ -145,22 +173,20 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url, 
             canvas.drawImage(sealing_path, 0, 0, width=60, height=60)
             canvas.restoreState()
 
-
     def create_story(size_ration=1):
         print(">> size_ration:", size_ration)
         story = []
         story.append(Spacer(1, 20))
 
         global global_user_input
-        user_input =global_user_input
-        
-        if user_input== "おまかせでお願いします。なにか面白い展示を教えてください。":
+        user_input = global_user_input
+
+        if user_input == "おまかせでお願いします。なにか面白い展示を教えてください。":
             user_input = "おまかせ"
         if is_kansai:
             story.append(Paragraph("「"+user_input+"」in 関西", get_style(font_name, 20*size_ration, 30*size_ration)))
         else:
             story.append(Paragraph("「"+user_input+"」in 全国", get_style(font_name, 20*size_ration, 30*size_ration)))
-
 
         story.append(Paragraph("と入力したあなたへのおすすめは...", get_style(font_name, 15*size_ration, 30*size_ration)))
 
@@ -189,37 +215,48 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url, 
         story.append(Paragraph("同好会botからの一言", get_style(font_name, 15*size_ration, 15*size_ration, alignment=TA_LEFT)))
         story.append(Spacer(1, 20))
 
-
         story.append(Paragraph(chatgpt_response, get_style(font_name, 15*size_ration, 20*size_ration, alignment=TA_LEFT)))
 
         story.append(Spacer(1, 10))
 
-        #QRコードの設定
+        # QRコードの設定
         qr = qrcode.QRCode(
-            version=2, #QRコードのバージョン(1~40)
-            error_correction=qrcode.constants.ERROR_CORRECT_H #誤り訂正レベル(L：約7%,M：約15%,Q:約25%,H:約30%)
+            version=2,  # QRコードのバージョン(1~40)
+            error_correction=qrcode.constants.ERROR_CORRECT_H  # 誤り訂正レベル
         )
         qr.add_data(url)
         qr.make()
         img = qr.make_image()
         img.save(url_path)
 
-        story.append(Image(url_path, width=100*size_ration, height=100*size_ration))
-        story.append(Paragraph("展示url", get_style(font_name, 10*size_ration, 10*size_ration)))
+        # ClickableImageの作成
+        clickable_qr = ClickableImage(url_path, url, width=100*size_ration, height=100*size_ration)
 
+        # FlowableにhAlignプロパティを設定して中央揃え
+        story.append(clickable_qr)
+
+        story.append(Paragraph('QRコードをクリック！', get_style(font_name, 10*size_ration, 10*size_ration)))
+
+        # 高さ計算の修正
         sum_height = 0
         for x in story:
-            if x.__class__.__name__ == "Paragraph":
-                text_len = len(x.frags[0].text)
-                font_size = x.frags[0].fontSize
+            if isinstance(x, Paragraph):
+                text_len = len(x.text)
+                font_size = x.style.fontSize
                 leading = x.style.leading
-                height = ((font_size * text_len // text_wide_point) + 1) * font_size + leading
-
-            elif x.__class__.__name__ == "Image":
-                height = story[-2]._height
-
-            else:
+                # 行数の概算
+                num_lines = max(1, text_len * font_size / text_wide_point)
+                height = num_lines * leading
+            elif isinstance(x, (Image, ClickableImage)):
+                height = x.height*2 #*2をすることで収まるようになった。理由は不明である
+                print(f"{height=}")
+            elif isinstance(x, Table):
+                # Tableのwrapメソッドを使用して高さを取得
+                _, height = x.wrap(text_wide_point, 0)
+            elif hasattr(x, 'height'):
                 height = x.height
+            else:
+                height = 0
             sum_height += height
 
         if sum_height > text_height_point:
@@ -230,9 +267,12 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url, 
         else:
             return story
 
+
     random.randint(1,100)
+    doc_name = f"{time.time()}.pdf"
     doc = SimpleDocTemplate(
-        "sample.pdf",
+        # f"flask_pdf/static/{time.time()}.pdf",
+        f"../PDFcreator/flask_pdf/static/{doc_name}",
         pagesize=B5,
         leftMargin=left_margin,
         rightMargin=right_margin
@@ -241,8 +281,8 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url, 
     story = create_story()
 
     # ドキュメントに追加
-    doc.build(story, onFirstPage=background_image, onLaterPages=background_image)
-
+    doc.build(story, onFirstPage=background_image, onLaterPages=background_image) #同じものが2ページ描写されるのか？よくわからん
+    return doc_name
 
 if __name__ == "__main__":
     user_input = "漫画が好きなので、漫画に関連した展示を見たい"
@@ -252,3 +292,4 @@ if __name__ == "__main__":
     url = "https://www.nakamuseum.jp/exhibition/2021/2021_09_10.html"
     is_kansai = False
     create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url, is_kansai)
+

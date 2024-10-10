@@ -17,7 +17,7 @@ def send_printer(pdffile, printer_name):
 
     if os.name =="posix":
         #OSがmac系であればこの操作
-        cmd = ['lpr','-o media=B5','-o fit-to-page', '-P', printer_name, pdffile]
+        cmd = ['lpr','-o media=A4','-o fit-to-page', '-P', printer_name, pdffile]
         print(' '.join(cmd))
 
     elif os.name =="nt":
@@ -50,6 +50,7 @@ if __name__ == '__main__':
     #printer_name = "Brother MFC-L2750DW E302"
     # printer_name = "EPSON_EP_883A_Series"
     
-    printer_name = "Brother_MFC_L2750DW_series__b42200a0521e_"
+    #printer_name = "Brother_MFC_L2750DW_series__b42200a0521e_"
+    printer_name = "EPSON_EW_M973A3T_Series"
     # printer_name = "Brother MFC-L2750DW_kanemoto" 
     send_printer(pdffile, printer_name)

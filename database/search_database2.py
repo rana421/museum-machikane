@@ -2,7 +2,12 @@
 #!pip install openai[embeddings]
 
 import openai
-from openai.embeddings_utils import cosine_similarity
+# from openai.embeddings_utils import cosine_similarity
+import numpy as np
+def cosine_similarity(k,q):
+    return np.dot(k,q)
+
+
 import os,json
 # os.chdir(os.path.dirname(os.path.abspath(__file__))) #カレントディレクトリを固定
 
@@ -20,9 +25,11 @@ class Search_database():
     def __init__(self):
 
         #self.model = "gpt-3.5-turbo"
-        self.model = "gpt-4"
+        # self.model = "gpt-4"
+        self.model = "gpt-4o-2024-08-06" #なんかgpt4oではなくこれを利用するとjson出力精度が大幅に向上した
+        # self.model = "chatgpt-4o-latest"
 
-        self.exhibition_count = 5
+        self.exhibition_count = 10
 
         # データベースの読み込み
         with open('../database/embedding_all.json') as f:
@@ -112,16 +119,16 @@ class Search_database():
         exhibition_text = "\n".join([f"{index+1}. " + exhibition["embedding_text"] for index, exhibition in enumerate(results[:self.exhibition_count])])
         #exhibition_text = "\n".join([f"{index+1}. " + exhibition["raw"][1] + " "+exhibition["raw"][0] + " "+exhibition["name"] for index, exhibition in enumerate(results[:exhibition_count])])
 
-        suggest_output_system = """出力は以下のようなJSON形式で行ってください。
+        suggest_output_system = """出力は以下のようなJSON形式で行ってください:
         {
-            "exhibition_number": {展示番号}
+            "exhibition_number": "展示番号"
         }
         """.replace("    ", "").strip()
 
 
-        final_output_system = """出力は以下のようなJSON形式で行ってください。W
+        final_output_system = """出力は以下のようなJSON形式で行ってください:
         {
-            "exhibition_reason": {その展示を選んだ理由を含む来客者への返答}
+            "exhibition_reason": "その展示を選んだ理由を含む来客者への返答"
         }
         """.replace("    ", "").strip()
 
@@ -180,7 +187,10 @@ class Search_database():
         展示数に限りがあるため、来客者様の入力と関わりが薄い展示が提案されているかもしれませんが、その場合も上手に話を繋げてください。
         来客者様の考えを読み取り、来客者様が聞いて楽しいような返答を心がけてください。この返答が来客者様に読まれます。
         返答は、文の終わり（。や.の後など）は改行を行ってください。
-        出力はJSON形式で行ってください。
+        出力は以下のようなJSON形式で行ってください:
+        {{
+            "exhibition_reason": "その展示を選んだ理由を含む来客者への返答をここに記述してください"
+        }}
         """.replace("    ", "").strip()
         #展示推薦の説明文の作成
         messages = [
@@ -201,7 +211,7 @@ class Search_database():
         print("ANSWER :\n", gpt_answer)
 
         try:
-            dictionary = json.loads(gpt_answer)
+            dictionary = json.loads(gpt_answer.replace("```json","").replace("```","")) #2024 '''jsonというものを出力してしまう傾向があるためこれを追記
         except:
             print(">> 展示理由のJSON形式での出力に失敗しました。")
             print(">> 再試行します。")
