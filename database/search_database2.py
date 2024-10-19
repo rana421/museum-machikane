@@ -85,7 +85,7 @@ class Search_database():
 
         # 検索用の文字列をベクトル化
         query = openai.Embedding.create(
-            model='text-embedding-ada-002',
+            model='text-embedding-3-small',
             input=self.query
         )
 
