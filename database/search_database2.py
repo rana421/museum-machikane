@@ -137,8 +137,6 @@ class Search_database():
         {exhibition_text}
         この{self.exhibition_count}個の展示からひとつ来客者様に対して提案しようと思うのですが、
         この中から最も来客者様に適していると思われる展示の番号を選んで出力してください。
-        来客者様の考えを読み取り、来客者様が聞いて楽しいような返答を心がけてください。この返答が来客者様に読まれます。
-        返答は、文の終わり（。や.の後など）は改行を行ってください。
         出力はJSON形式で行ってください。
         """.replace("    ", "").strip()
 
@@ -161,7 +159,7 @@ class Search_database():
         )
 
         # 展示番号の獲得
-        gpt_answer  = response.choices[0]["message"]["content"].strip()
+        gpt_answer  = response.choices[0]["message"]["content"].strip().replace("```json","").replace("```","")#2024 '''jsonというものを出力してしまう傾向があるためこれを追記
         print("ANSWER :\n", gpt_answer)
         try:
             dictionary = json.loads(gpt_answer)
