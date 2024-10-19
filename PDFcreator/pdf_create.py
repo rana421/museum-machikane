@@ -23,7 +23,7 @@ PROBABILITY = 0.1
 url_path = "./image/qr.png"
 backgpund_path = "./image/material_201006_01_white.png"
 backgpund_rote_path = "./image/material_201006_01_white_rotate.png"
-logo_path = "./image/ミュージアム同好会_ロゴ2.png"
+logo_path = "./image/museum_club_logo2.png"
 sealing_path = "./image/sealing.png"
 hit_path = "./image/hit.png"
 
