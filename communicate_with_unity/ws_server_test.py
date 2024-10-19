@@ -98,7 +98,7 @@ async def server(websocket, path):
 
                 #2024追記 pdfからqrコードを作成する
                 pdf_doc_name = create_PDF(user_input, museum_name, exhibition_name, exhibition_reason, url, is_kansai_only)
-                result_url = f"http://http://162.43.87.7:5000/pdf/{pdf_doc_name}"
+                result_url = f"http://162.43.87.7:5000/pdf/{pdf_doc_name}"
                 print(f"url: {result_url}")
                 # QRコードの設定
                 # qr = qrcode.QRCode(
