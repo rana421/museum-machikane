@@ -24,5 +24,5 @@ def serve_pdf(filename):
 # print(f"{__name__=}")
 if __name__ == '__main__' or __name__ == 'PDFcreator.flask_pdf.app':
     #このコードを直接動作させた時または__init__.pyからimportされたときのみに動作する
-    app.run(host="0.0.0.0",port="80",debug=True)
+    app.run(host="0.0.0.0",port="5000",debug=True)
     print("flask is active!")
