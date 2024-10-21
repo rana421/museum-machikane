@@ -11,9 +11,10 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.utils import ImageReader
 
+
 import sys
 sys.path.append('../PDFcreator')
-
+from for_emoji import format_text_with_emoji_font
 # まちかね祭全体であたり10個
 # 一日の上限をもけるとしたら、3個・3個・4個とか
 # MAX_HIT_COUNT = 3, PROBABILITY = 0.1
@@ -27,11 +28,21 @@ logo_path = "./image/museum_club_logo2.png"
 sealing_path = "./image/sealing.png"
 hit_path = "./image/hit.png"
 
-font_name = "genshingothic"
-font_path = "./font/genshingothic-20150607/GenShinGothic-Normal.ttf"
+#絵文字使用用
+font_name = "Noto_Sans_JP"
+font_path = "./font/Noto_Sans_JP/NotoSansJP-VariableFont_wght.ttf"
+
+font_emoji_name = "NotoEmoji"
+font_emoji_path = "./font/Noto_Emoji/NotoEmoji-VariableFont_wght.ttf"
+
+
+# font_name = "genshingothic"
+# font_path = "./font/genshingothic-20150607/GenShinGothic-Normal.ttf"
 
 font_mintyou_name = "BIZ_UDMincho-Regular"
 font_mintyou_path = "./font/BIZ_UDMincho/BIZUDMincho-Regular.ttf"
+
+
 
 x_qr_path = "./image/qr_x.png"
 instagram_qr_path = "./image/qr_insta.png"
@@ -46,6 +57,7 @@ text_height_point = B5[1]-inch-inch
 
 # フォントの登録
 pdfmetrics.registerFont(TTFont(font_name, font_path))
+pdfmetrics.registerFont(TTFont(font_emoji_name, font_emoji_path))
 pdfmetrics.registerFont(TTFont(font_mintyou_name, font_mintyou_path))
 
 global_user_input = "" #globalにこれがないと動かなかった
@@ -173,13 +185,13 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url, 
             canvas.drawImage(sealing_path, 0, 0, width=60, height=60)
             canvas.restoreState()
 
-    def create_story(size_ration=1):
+    def create_story(chatgpt_response,size_ration=1):
         print(">> size_ration:", size_ration)
         story = []
         story.append(Spacer(1, 20))
 
         global global_user_input
-        user_input = global_user_input
+        user_input = format_text_with_emoji_font(global_user_input)
 
         if user_input == "おまかせでお願いします。なにか面白い展示を教えてください。":
             user_input = "おまかせ"
@@ -215,6 +227,7 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url, 
         story.append(Paragraph("同好会botからの一言", get_style(font_name, 15*size_ration, 15*size_ration, alignment=TA_LEFT)))
         story.append(Spacer(1, 20))
 
+        chatgpt_response = format_text_with_emoji_font(chatgpt_response) #絵文字が入っている場合
         story.append(Paragraph(chatgpt_response, get_style(font_name, 15*size_ration, 20*size_ration, alignment=TA_LEFT)))
 
         story.append(Spacer(1, 10))
@@ -241,7 +254,7 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url, 
         sum_height = 0
         for x in story:
             if isinstance(x, Paragraph):
-                text_len = len(x.text)
+                text_len = len(x.text.replace('<font name="NotoEmoji">',"").replace('</font>',"")) #htmlの要素部分を排除して計算する
                 font_size = x.style.fontSize
                 leading = x.style.leading
                 # 行数の概算
@@ -263,7 +276,7 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url, 
             print(">> sum_height:", sum_height)
             print(">> sum_height > text_height_point")
             print(">> retry")
-            return create_story(size_ration=size_ration * 0.95)
+            return create_story(chatgpt_response,size_ration=size_ration * 0.95)
         else:
             return story
 
@@ -278,7 +291,7 @@ def create_PDF(user_input, museum_name, exhibition_name, chatgpt_response, url, 
         rightMargin=right_margin
     )
 
-    story = create_story()
+    story = create_story(chatgpt_response)
 
     # ドキュメントに追加
     doc.build(story, onFirstPage=background_image, onLaterPages=background_image) #同じものが2ページ描写されるのか？よくわからん
